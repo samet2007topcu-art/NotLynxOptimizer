@@ -41,7 +41,7 @@
 ## 📝 Kaynaktan Derleme (Build from Source)
 
 ```bash
-git clone https://github.com/NotLynx/NotLynxOptimizer.git
+git clone https://github.com/samet2007topcu-art/NotLynxOptimizer.git
 cd NotLynxOptimizer
 pip install Pillow PyInstaller
 python make_icon.py
