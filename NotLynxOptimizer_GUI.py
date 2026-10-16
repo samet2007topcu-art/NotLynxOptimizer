@@ -152,7 +152,7 @@ class NotLynxOptimizerApp(ctk.CTk):
         super().__init__()
 
         # Pencere Yapılandırması
-        self.title("NotLynx Optimizer v2.5 | Elite Cyberpunk Performance Suite")
+        self.title("NotLynx Optimizer v1.0 | Elite Cyberpunk Performance Suite")
         self.geometry("1240x800")
         self.minsize(1100, 720)
 
@@ -241,6 +241,9 @@ class NotLynxOptimizerApp(ctk.CTk):
                     pass
 
     def init_sidebar_logo(self):
+        logo_container = ctk.CTkFrame(self.sidebar_frame, fg_color="transparent")
+        logo_container.grid(row=0, column=0, padx=16, pady=(15, 8))
+
         logo_path = "logo.png"
         if not os.path.exists(logo_path):
             logo_path = "NotlynxOptimizer/logo.png"
@@ -248,19 +251,19 @@ class NotLynxOptimizerApp(ctk.CTk):
         if os.path.exists(logo_path):
             try:
                 pil_img = Image.open(logo_path)
-                ctk_img = ctk.CTkImage(light_image=pil_img, dark_image=pil_img, size=(220, 115))
-                img_lbl = ctk.CTkLabel(self.sidebar_frame, image=ctk_img, text="")
-                img_lbl.grid(row=0, column=0, padx=20, pady=(20, 4))
+                ctk_img = ctk.CTkImage(light_image=pil_img, dark_image=pil_img, size=(125, 125))
+                img_lbl = ctk.CTkLabel(logo_container, image=ctk_img, text="")
+                img_lbl.pack(pady=(0, 4))
             except:
-                self.fallback_logo()
-        else:
-            self.fallback_logo()
+                pass
+
+        lbl = ctk.CTkLabel(logo_container, text="NOTLYNX", font=ctk.CTkFont(family="Segoe UI", size=22, weight="bold"), text_color="#00ff66")
+        lbl.pack(pady=(0, 0))
+        sub = ctk.CTkLabel(logo_container, text="// ELITE KERNEL SUITE v1.0", font=ctk.CTkFont(family="Segoe UI", size=10, weight="bold"), text_color="#38bdf8")
+        sub.pack(pady=(0, 2))
 
     def fallback_logo(self):
-        lbl = ctk.CTkLabel(self.sidebar_frame, text="NOTLYNX", font=ctk.CTkFont(family="Segoe UI", size=24, weight="bold"), text_color="#00ff66")
-        lbl.grid(row=0, column=0, padx=20, pady=(25, 2), sticky="w")
-        sub = ctk.CTkLabel(self.sidebar_frame, text="// ELITE KERNEL SUITE v2.5", font=ctk.CTkFont(family="Segoe UI", size=10, weight="bold"), text_color="#38bdf8")
-        sub.grid(row=1, column=0, padx=20, pady=(0, 15), sticky="w")
+        pass
 
     def init_admin_badge(self):
         is_adm = self.is_admin()

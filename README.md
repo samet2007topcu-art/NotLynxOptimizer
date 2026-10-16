@@ -1,4 +1,4 @@
-# ⚡ NotLynx Optimizer v2.5 Elite Cyberpunk Suite
+# ⚡ NotLynx Optimizer v1.0 Elite Cyberpunk Suite
 
 <p align="center">
   <img src="logo.png" alt="NotLynx Optimizer Logo" width="480"/>
@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases"><img src="https://img.shields.io/badge/Release-v2.5%20Elite-00ff66.svg?style=for-the-badge&logo=windows" alt="Release"/></a>
+  <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases"><img src="https://img.shields.io/badge/Release-v1.0%20Elite-00ff66.svg?style=for-the-badge&logo=windows" alt="Release"/></a>
   <img src="https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-blue.svg?style=for-the-badge&logo=windows" alt="Platform"/>
   <img src="https://img.shields.io/badge/Python-3.10+-yellow.svg?style=for-the-badge&logo=python" alt="Python"/>
   <img src="https://img.shields.io/badge/UI-CustomTkinter%20Cyberpunk-purple.svg?style=for-the-badge" alt="UI"/>
@@ -21,7 +21,7 @@
 
 ## 🚀 Proje Hakkında
 
-**NotLynx Optimizer v2.5**, rekabetçi e-spor oyuncuları ve performans tutkunları için geliştirilmiş açık kaynaklı bir Windows çekirdek ve sistem optimizasyon merkezidir. 
+**NotLynx Optimizer v1.0**, rekabetçi e-spor oyuncuları ve performans tutkunları için geliştirilmiş açık kaynaklı bir Windows çekirdek ve sistem optimizasyon merkezidir. 
 
 Standart optimizasyon araçlarından farklı olarak **NotLynx Optimizer**, sistem kaynaklarını tüketen arka plan kancalarını doğrudan çekirdek seviyesinde yönetir, Görev Yöneticisi işlem sayısını 230+'lardan 130 seviyelerine indirir ve ekran kartı kesme gecikmelerini (MSI Mode) e-spor standartlarına taşır.
 
@@ -82,7 +82,7 @@ Standart optimizasyon araçlarından farklı olarak **NotLynx Optimizer**, siste
 
 ## 📊 Performans Kıyaslaması (Benchmarks)
 
-| Parametre | Standart Windows 10/11 | NotLynx Optimizer v2.5 Sonrası |
+| Parametre | Standart Windows 10/11 | NotLynx Optimizer v1.0 Sonrası |
 | :--- | :---: | :---: |
 | **Arka Plan İşlem Sayısı** | ~230 - 250 İşlem | **~120 - 140 İşlem** |
 | **DPC Gecikmesi (LatencyMon)** | 850 µs - 1200 µs | **< 150 µs** |
