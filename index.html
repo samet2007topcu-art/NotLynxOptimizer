@@ -2,10 +2,14 @@
 <html lang="tr" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>NotLynx Optimizer v1.0 | Çekirdek Seviyesinde Gecikme Optimize Motoru</title>
-    <!-- Sekme Logosu (Favicon) -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M50 15 L82 28 L72 75 L50 90 L28 75 L18 28 Z' stroke='%2300ff66' stroke-width='6' fill='rgba(0,0,0,0.85)'/><polygon points='35,45 45,45 40,52' fill='%2300ff66'/><polygon points='65,45 55,45 60,52' fill='%2300ff66'/><path d='M50 60 L45 68 L55 68 Z' fill='%2300ff66'/></svg>">
+    <meta name="description" content="NotLynx Optimizer v1.0 - Çekirdek seviyesinde Windows gecikme düşürücü, 10 kernel modülü, BCDedit, GPU önceliği ve Ultimate Power Plan suite.">
+    <meta name="author" content="NotLynx (Samet) - @NotLynx_7">
+    <meta name="copyright" content="© 2026 NotLynx Team. All Rights Reserved. Protected by Anti-Theft Shield.">
+
+    <!-- Sekme Logosu (Apple-Style Horned Lynx Favicon) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect x='30' y='30' width='452' height='452' rx='110' fill='%23090d14' stroke='%2300ff66' stroke-width='16'/><path d='M256 180 L196 165 L100 120 L116 75 L61 160 L66 240 L126 275 L91 320 L186 370 L256 410 L326 370 L421 320 L386 275 L446 240 L451 160 L396 75 L412 120 L316 165 Z' fill='%230e1621' stroke='%2300ff66' stroke-width='14'/><path d='M116 75 L146 150 L186 210 M396 75 L366 150 L326 210' stroke='%2300f0ff' stroke-width='10' stroke-linecap='round'/><polygon points='256,200 218,245 256,290 294,245' fill='rgba(0,255,102,0.3)' stroke='%2300ff66' stroke-width='6'/><polygon points='151,255 211,270 176,285' fill='%2300ff66' stroke='%23fff' stroke-width='4'/><polygon points='361,255 301,270 336,285' fill='%2300ff66' stroke='%23fff' stroke-width='4'/></svg>">
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,8 +19,8 @@
                 extend: {
                     colors: {
                         'cyber-dark': '#06080d',
-                        'cyber-card': '#0d131d',
-                        'cyber-cardLight': '#151d2a',
+                        'cyber-card': '#0a101d',
+                        'cyber-cardLight': '#131e35',
                         'cyber-neon': '#00ff66',
                         'cyber-cyan': '#00f0ff',
                     }
@@ -25,281 +29,417 @@
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@300;400;600;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@300;400;600;700;800;900&display=swap');
         
-        body { 
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body { 
             font-family: 'Inter', sans-serif; 
             background-color: #06080d; 
             color: #f8fafc;
-            /* Arka Plan Siber Matris Şebekesi (Grid Pattern) */
+            overflow-x: hidden;
+            width: 100%;
+            /* Siber Izgara Matrisi */
             background-image: 
-                radial-gradient(circle at 50% 20%, rgba(0, 255, 102, 0.08) 0%, transparent 60%),
-                linear-gradient(to right, rgba(0, 255, 102, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(0, 255, 102, 0.03) 1px, transparent 1px);
-            background-size: 100% 100%, 40px 40px, 40px 40px;
+                radial-gradient(circle at 50% 15%, rgba(0, 255, 102, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 85% 75%, rgba(0, 240, 255, 0.04) 0%, transparent 50%),
+                linear-gradient(to right, rgba(0, 255, 102, 0.025) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 255, 102, 0.025) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px;
         }
 
         .font-mono { font-family: 'Fira Code', monospace; }
         
-        /* Statik Işıma */
         .box-neon-glow { 
-            box-shadow: 0 0 20px rgba(0, 255, 102, 0.2); 
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.25); 
+        }
+
+        .text-neon-glow { 
+            text-shadow: 0 0 14px rgba(0, 255, 102, 0.65); 
+        }
+
+        .text-cyan-glow { 
+            text-shadow: 0 0 14px rgba(0, 240, 255, 0.65); 
         }
         
-        /* Hover Etkileşimli Siber Kart Efekti */
+        /* İnteraktif Siber Kart */
         .cyber-interactive-card {
-            background-color: #0d131d;
-            border: 1px solid rgba(0, 255, 102, 0.2);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: #0a101d;
+            border: 1px solid rgba(0, 255, 102, 0.18);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         
         .cyber-interactive-card:hover {
             border-color: #00ff66;
-            box-shadow: 0 0 25px rgba(0, 255, 102, 0.45);
-            transform: translateY(-4px);
+            box-shadow: 0 0 28px rgba(0, 255, 102, 0.4);
+            transform: translateY(-3px);
         }
 
-        .text-neon-glow { text-shadow: 0 0 12px rgba(0, 255, 102, 0.6); }
+        /* Anti-Theft / Telif Koruma Sınıfları */
+        .select-none, .protected-brand, .brand-logo, .copyright-shield {
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+            -webkit-user-drag: none !important;
+        }
+
+        img, svg {
+            -webkit-user-drag: none;
+            user-drag: none;
+        }
+
+        /* Güvenlik Toast Bildirimi */
+        #security-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 99999;
+            transform: translateY(160%);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+        #security-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
     </style>
 </head>
-<body class="bg-cyber-dark text-slate-100 antialiased selection:bg-cyber-neon selection:text-black min-h-screen">
+<body class="bg-cyber-dark text-slate-100 antialiased selection:bg-cyber-neon selection:text-black min-h-screen relative">
+
+    <!-- Anti-Theft Güvenlik Bildirimi (Toast) -->
+    <div id="security-toast" class="bg-[#070b14]/95 border border-cyber-neon text-white px-5 py-4 rounded-xl shadow-[0_0_35px_rgba(0,255,102,0.4)] flex items-center gap-3.5 font-mono text-xs max-w-sm sm:max-w-md backdrop-blur-lg">
+        <div class="w-9 h-9 rounded-lg bg-cyber-card border border-cyber-neon flex items-center justify-center text-cyber-neon flex-shrink-0 text-base shadow-[0_0_12px_rgba(0,255,102,0.5)]">
+            🛡️
+        </div>
+        <div>
+            <p class="font-bold text-cyber-neon tracking-wider">NOTLYNX SHIELD v1.0</p>
+            <p class="text-slate-300 text-[11px] mt-0.5" id="toast-message">Bu logo, telif yazıları ve kaynaklar NotLynx koruması altındadır. İzinsiz kopyalanamaz.</p>
+        </div>
+    </div>
 
     <!-- Header Navigation -->
-    <header class="sticky top-0 z-50 backdrop-blur-md bg-cyber-dark/85 border-b border-cyber-neon/30">
+    <header class="sticky top-0 z-50 backdrop-blur-md bg-cyber-dark/90 border-b border-cyber-neon/30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <a href="#" class="flex items-center gap-3 group">
-                <div class="h-12 w-12 relative flex items-center justify-center bg-cyber-card rounded-lg border border-cyber-neon/60 group-hover:border-cyber-neon transition-all duration-300 box-neon-glow overflow-hidden p-0.5">
-                    <img src="logo.png" alt="NotLynx Horned Mascot" class="w-full h-full object-cover rounded-md"/>
+            <!-- Brand Logo (Apple-Style Horned Lynx Emblem) -->
+            <a href="#" class="flex items-center gap-3 group protected-brand relative">
+                <div class="h-12 w-12 relative flex items-center justify-center bg-gradient-to-b from-[#0e1626] to-[#060a12] rounded-xl border border-cyber-neon/60 group-hover:border-cyber-neon transition-all duration-300 box-neon-glow overflow-hidden p-1 shadow-[0_0_20px_rgba(0,255,102,0.3)]">
+                    <!-- Apple-tier Horned Lynx Vector Emblem -->
+                    <svg class="w-full h-full text-cyber-neon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="25" y="25" width="462" height="462" rx="100" fill="#090d14" stroke="#00ff66" stroke-width="14"/>
+                        <path d="M256 180 L196 165 L100 120 L116 75 L61 160 L66 240 L126 275 L91 320 L186 370 L256 410 L326 370 L421 320 L386 275 L446 240 L451 160 L396 75 L412 120 L316 165 Z" fill="#0d141f" stroke="#00ff66" stroke-width="12" stroke-linejoin="round"/>
+                        <path d="M116 75 L146 150 L186 210" stroke="#00f0ff" stroke-width="8" stroke-linecap="round"/>
+                        <path d="M396 75 L366 150 L326 210" stroke="#00f0ff" stroke-width="8" stroke-linecap="round"/>
+                        <polygon points="256,200 218,245 256,290 294,245" fill="rgba(0,255,102,0.25)" stroke="#00ff66" stroke-width="6"/>
+                        <polygon points="151,255 211,270 176,285" fill="#00ff66" stroke="#ffffff" stroke-width="4"/>
+                        <polygon points="361,255 301,270 336,285" fill="#00ff66" stroke="#ffffff" stroke-width="4"/>
+                        <polygon points="232,335 280,335 256,360" fill="#00ff66" stroke="#00ff66" stroke-width="4"/>
+                        <line x1="256" y1="360" x2="256" y2="380" stroke="#00ff66" stroke-width="6"/>
+                    </svg>
+                    <!-- Logo Koruma Katmanı -->
+                    <div class="absolute inset-0 bg-transparent cursor-pointer" oncontextmenu="preventCopy(event, 'Logo korumalıdır!')"></div>
                 </div>
                 <div>
-                    <span class="font-bold text-xl tracking-wider text-white block font-mono">
+                    <span class="font-bold text-lg sm:text-xl tracking-wider text-white block font-mono select-none">
                         NOTLYNX <span class="text-cyber-neon text-neon-glow">OPTIMIZER</span>
                     </span>
-                    <span class="text-cyber-neon text-xs block opacity-90 italic">engineered by notlynx</span>
+                    <span class="text-cyber-neon text-[11px] block opacity-90 italic select-none">engineered by notlynx // v1.0</span>
                 </div>
             </a>
 
-            <nav class="hidden md:flex items-center gap-8 font-semibold text-sm tracking-widest text-slate-300 font-mono">
+            <!-- Desktop Nav Items -->
+            <nav class="hidden lg:flex items-center gap-7 font-semibold text-xs tracking-widest text-slate-300 font-mono">
                 <a href="#modules" class="hover:text-cyber-neon hover:text-neon-glow transition-all">KERNEL & GPU</a>
                 <a href="#simulator" class="hover:text-cyber-neon hover:text-neon-glow transition-all">CANLI SİMÜLATÖR</a>
                 <a href="#transparency" class="hover:text-cyber-neon hover:text-neon-glow transition-all">KAYNAKÇA & GÜVEN</a>
                 <a href="#install" class="hover:text-cyber-neon hover:text-neon-glow transition-all">KURULUM</a>
             </nav>
 
-            <div>
-                <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases" class="font-bold text-sm tracking-wider px-5 py-2.5 rounded-md bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_20px_rgba(0,255,102,0.5)] hover:shadow-[0_0_30px_rgba(255,255,255,0.8)] flex items-center gap-2 font-mono">
+            <!-- Social Icons & Download Action -->
+            <div class="flex items-center gap-3">
+                <!-- TikTok Icon Button -->
+                <a href="https://tiktok.com/@NotLynx_7" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-lg bg-cyber-card border border-cyber-cardLight hover:border-cyber-cyan text-slate-300 hover:text-cyber-cyan transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow-[0_0_15px_rgba(0,240,255,0.4)]" title="TikTok: @NotLynx_7">
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                        <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.67a2.89 2.89 0 0 1-5.201 1.743l-.068-.102a2.89 2.89 0 0 1 2.378-4.529c.394 0 .771.078 1.116.219V9.45a6.333 6.333 0 0 0-1.116-.1c-3.535 0-6.4 2.865-6.4 6.4s2.865 6.4 6.4 6.4c3.484 0 6.321-2.784 6.398-6.246V9.487c1.332.96 2.973 1.526 4.75 1.55v-3.48a4.834 4.834 0 0 1-1.042-.871z"/>
+                    </svg>
+                </a>
+
+                <!-- Instagram Icon Button -->
+                <a href="https://instagram.com/NotLynx7" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-lg bg-cyber-card border border-cyber-cardLight hover:border-[#ec4899] text-slate-300 hover:text-[#ec4899] transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow-[0_0_15px_rgba(236,72,153,0.4)]" title="Instagram: @NotLynx7">
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    </svg>
+                </a>
+
+                <!-- GitHub Icon Button -->
+                <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer" target="_blank" rel="noopener noreferrer" class="hidden sm:flex w-10 h-10 rounded-lg bg-cyber-card border border-cyber-cardLight hover:border-cyber-neon text-slate-300 hover:text-cyber-neon transition-all duration-300 items-center justify-center shadow-sm hover:shadow-[0_0_15px_rgba(0,255,102,0.4)]" title="GitHub">
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                    </svg>
+                </a>
+
+                <!-- Download Button -->
+                <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases" class="font-bold text-xs sm:text-sm tracking-wider px-4 sm:px-5 py-2.5 rounded-lg bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_20px_rgba(0,255,102,0.5)] hover:shadow-[0_0_30px_rgba(255,255,255,0.8)] flex items-center gap-2 font-mono flex-shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    <span>v1.0 EXE İNDİR</span>
+                    <span>v1.0 İNDİR</span>
                 </a>
             </div>
         </div>
     </header>
 
     <!-- Hero Section -->
-    <section class="relative pt-12 pb-20 md:py-24 overflow-hidden">
+    <section class="relative pt-10 pb-16 md:pt-16 md:pb-24 overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                <div class="lg:col-span-7 space-y-8 text-center lg:text-left">
-                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyber-card border border-cyber-neon/40 text-cyber-neon text-xs tracking-widest box-neon-glow font-mono">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+                
+                <!-- Sol Kolon: Başlık ve Açıklamalar -->
+                <div class="lg:col-span-7 space-y-7 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyber-card border border-cyber-neon/40 text-cyber-neon text-xs tracking-widest box-neon-glow font-mono select-none">
                         <span class="w-2 h-2 rounded-full bg-cyber-neon animate-ping"></span>
-                        <span>OFFICIAL RELEASE v1.0 • 10 KERNEL MODÜLÜ & GPU SUITE AKTİF</span>
+                        <span>OFFICIAL v1.0 • 10 KERNEL MODÜLÜ & GÖSTERGE PANELİ DEVREDE</span>
                     </div>
 
-                    <h1 class="font-black text-4xl sm:text-6xl xl:text-7xl tracking-tight text-white leading-none">
+                    <h1 class="font-black text-3xl sm:text-5xl xl:text-6xl tracking-tight text-white leading-tight select-none">
                         ÇEKİRDEK SEVİYESİNDE <br/>
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyber-neon via-emerald-300 to-green-400 text-neon-glow">
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyber-neon via-emerald-300 to-cyan-400 text-neon-glow">
                             SIFIR GECİKME
                         </span> <br/>
                         MAKSİMUM PERFORMANS.
                     </h1>
 
-                    <p class="text-slate-400 text-lg sm:text-xl font-medium max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-                        NotLynx Optimizer v1.0; BCDedit zamanlayıcıları, TCP Nagle algoritması devre dışı bırakma, GPU önceliği, USB Raw Input ve Ultimate Power Plan entegrasyonu ile donanımınızdan alabileceğiniz en yüksek akıcılığı sunar.
+                    <p class="text-slate-400 text-base sm:text-lg font-medium max-w-2xl mx-auto lg:mx-0 leading-relaxed protected-brand">
+                        NotLynx Optimizer v1.0; BCDedit saat zamanlayıcıları, TCP Nagle algoritması bypass, GPU MMCSS önceliği, OptimizerDuck stili canlı donanım gösterge paneli ve Windows Denetim Masası entegreli <span class="text-cyber-neon font-semibold">NotLynx Ultimate Power Plan</span> ile sisteminizi e-spor seviyesine taşır.
                     </p>
 
                     <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-                        <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases/download/v1.0/NotLynxOptimizer_GUI.exe" class="w-full sm:w-auto font-bold text-base tracking-wider px-8 py-4 rounded-lg bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_30px_rgba(0,255,102,0.6)] flex items-center justify-center gap-3 transform hover:-translate-y-1 font-mono">
+                        <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases/download/v1.0/NotLynxOptimizer_GUI.exe" class="w-full sm:w-auto font-bold text-sm sm:text-base tracking-wider px-8 py-4 rounded-xl bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_30px_rgba(0,255,102,0.6)] flex items-center justify-center gap-3 transform hover:-translate-y-1 font-mono">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                            <span>NOTLYNXOPTIMIZER.EXE İNDİR (v1.0)</span>
+                            <span>NOTLYNXOPTIMIZER.EXE (v1.0)</span>
                         </a>
-                        <a href="#simulator" class="w-full sm:w-auto font-bold text-sm tracking-wider px-6 py-4 rounded-lg bg-cyber-card text-slate-300 hover:text-white border border-cyber-neon/30 hover:border-cyber-neon hover:shadow-[0_0_20px_rgba(0,255,102,0.3)] transition-all duration-300 flex items-center justify-center gap-2 font-mono">
+                        <a href="#simulator" class="w-full sm:w-auto font-bold text-sm tracking-wider px-6 py-4 rounded-xl bg-cyber-card text-slate-300 hover:text-white border border-cyber-neon/30 hover:border-cyber-neon hover:shadow-[0_0_20px_rgba(0,255,102,0.3)] transition-all duration-300 flex items-center justify-center gap-2 font-mono">
                             <svg class="w-5 h-5 text-cyber-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <span>10 MODÜLÜ TEST ET</span>
                         </a>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-4 pt-6 border-t border-cyber-cardLight max-w-lg mx-auto lg:mx-0 font-mono">
-                        <div>
-                            <div class="font-bold text-2xl sm:text-3xl text-cyber-neon text-neon-glow">10 / 10</div>
-                            <div class="text-xs text-slate-400">OPTİMİZASYON MODÜLÜ</div>
+                    <div class="grid grid-cols-3 gap-3 sm:gap-4 pt-6 border-t border-cyber-cardLight max-w-lg mx-auto lg:mx-0 font-mono select-none">
+                        <div class="bg-cyber-card/60 p-3 rounded-lg border border-cyber-cardLight/70">
+                            <div class="font-bold text-xl sm:text-2xl text-cyber-neon text-neon-glow">10 / 10</div>
+                            <div class="text-[10px] sm:text-xs text-slate-400">KERNEL MODÜLÜ</div>
                         </div>
-                        <div>
-                            <div class="font-bold text-2xl sm:text-3xl text-cyber-neon text-neon-glow">+75 FPS</div>
-                            <div class="text-xs text-slate-400">ORTALAMA FPS ARTIŞI</div>
+                        <div class="bg-cyber-card/60 p-3 rounded-lg border border-cyber-cardLight/70">
+                            <div class="font-bold text-xl sm:text-2xl text-cyber-neon text-neon-glow">+75 FPS</div>
+                            <div class="text-[10px] sm:text-xs text-slate-400">ORTALAMA ARTIŞ</div>
                         </div>
-                        <div>
-                            <div class="font-bold text-2xl sm:text-3xl text-cyber-neon text-neon-glow">100%</div>
-                            <div class="text-xs text-slate-400">AÇIK KAYNAK</div>
+                        <div class="bg-cyber-card/60 p-3 rounded-lg border border-cyber-cardLight/70">
+                            <div class="font-bold text-xl sm:text-2xl text-cyber-cyan text-cyan-glow">0.5 ms</div>
+                            <div class="text-[10px] sm:text-xs text-slate-400">TIMER RESOLUTION</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Right Card Graphic: FPS Analiz Kartı -->
+                <!-- Sağ Kolon: Apple-Style Horned Lynx & İnteraktif FPS Karşılaştırma Kartı -->
                 <div class="lg:col-span-5 flex justify-center">
-                    <div class="w-full max-w-md cyber-interactive-card rounded-2xl p-6 space-y-6 relative overflow-hidden">
-                        <div class="flex items-center justify-between border-b border-cyber-cardLight pb-4">
+                    <div class="w-full max-w-md cyber-interactive-card rounded-2xl p-6 space-y-6 relative overflow-hidden shadow-[0_0_35px_rgba(0,0,0,0.6)]">
+                        
+                        <!-- Kart Üst Barı -->
+                        <div class="flex items-center justify-between border-b border-cyber-cardLight pb-4 select-none">
                             <div class="flex items-center gap-2">
                                 <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
                                 <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
                                 <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
                             </div>
-                            <span class="text-xs font-mono text-cyber-neon">NotLynx Kernel V1.0</span>
+                            <span class="text-xs font-mono text-cyber-neon flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-cyber-neon"></span>
+                                NotLynx Kernel v1.0
+                            </span>
                         </div>
 
-                        <div class="text-center py-2">
-                            <div class="w-28 h-28 mx-auto rounded-2xl bg-cyber-dark border-2 border-cyber-neon flex items-center justify-center box-neon-glow mb-4 overflow-hidden p-1 shadow-[0_0_25px_rgba(0,255,102,0.4)]">
-                                <img src="logo.png" alt="NotLynx Horned Cyber Mascot" class="w-full h-full object-cover rounded-xl"/>
+                        <!-- Apple-Style Horned Lynx Mascot Emblem Container -->
+                        <div class="text-center py-1 relative">
+                            <div class="w-32 h-32 mx-auto rounded-3xl bg-gradient-to-b from-[#0f1728] to-[#05080f] border-2 border-cyber-neon/80 flex items-center justify-center box-neon-glow mb-2 overflow-hidden p-2 shadow-[0_0_30px_rgba(0,255,102,0.45)] relative group cursor-pointer" title="NotLynx Horned Cyber Mascot v1.0">
+                                <img src="logo.png" alt="NotLynx Apple-Style Horned Lynx Emblem" class="w-full h-full object-contain rounded-2xl select-none" draggable="false" oncontextmenu="preventCopy(event, 'Logo korumalıdır!')"/>
+                                <!-- Görünmez Kalkan Katmanı (Sağ Tık / Sürükleme İmkansız) -->
+                                <div class="absolute inset-0 bg-transparent" oncontextmenu="preventCopy(event, 'NotLynx logosu telif hakkı koruması altındadır.')"></div>
                             </div>
+                            <p class="text-[11px] font-mono text-slate-400 select-none">NOTLYNX // VAŞAK BOYNUZLU LOGO</p>
                         </div>
 
-                        <div class="bg-cyber-dark/90 border border-cyber-cardLight rounded-xl p-4 space-y-4 font-mono">
-                            <div class="flex items-center justify-between text-xs text-slate-300">
-                                <span>GERÇEK ZAMANLI GERÇEKÇİ FPS ANALİZİ</span>
-                                <div class="w-10 h-6 bg-cyber-neon rounded-full p-1 flex items-center justify-end box-neon-glow cursor-pointer">
-                                    <div class="w-4 h-4 bg-black rounded-full"></div>
-                                </div>
+                        <!-- İNTERAKTİF FPS VE GECİKME SİMÜLATÖRÜ KARTI -->
+                        <div class="bg-[#05080f] border border-cyber-cardLight rounded-xl p-4 space-y-4 font-mono">
+                            <div class="flex items-center justify-between text-xs">
+                                <span id="fps-mode-title" class="font-bold flex items-center gap-1.5 text-cyber-neon select-none">
+                                    <span id="fps-mode-dot" class="w-2 h-2 rounded-full bg-cyber-neon animate-pulse"></span>
+                                    <span id="fps-mode-text">NOTLYNX v1.0 (DEVREDE)</span>
+                                </span>
+                                
+                                <!-- Aç / Kapa FPS Switch Butonu -->
+                                <button id="fps-toggle-btn" onclick="toggleFpsSimulator()" class="w-12 h-6 bg-cyber-neon rounded-full p-1 flex items-center justify-end box-neon-glow cursor-pointer transition-all duration-300 focus:outline-none" title="Optimizasyonu Aç / Kapa (Test Et)">
+                                    <div id="fps-toggle-knob" class="w-4 h-4 bg-black rounded-full shadow-md transition-all duration-300 transform translate-x-0"></div>
+                                </button>
                             </div>
+
+                            <!-- 2 Metrik Kartı (FPS ve Gecikme) -->
                             <div class="grid grid-cols-2 gap-3 text-center">
-                                <div class="bg-cyber-card p-3 rounded-lg border border-cyber-cardLight">
-                                    <div class="text-xs text-slate-400 mb-1">ORTALAMA FPS</div>
-                                    <div class="text-xl font-bold text-cyber-neon text-neon-glow">240 FPS</div>
+                                <div id="box-fps" class="bg-cyber-card p-3 rounded-lg border border-cyber-neon/40 transition-all duration-300 shadow-[0_0_15px_rgba(0,255,102,0.15)]">
+                                    <div class="text-[10px] text-slate-400 mb-1">ORTALAMA FPS</div>
+                                    <div id="val-fps" class="text-2xl font-bold text-cyber-neon text-neon-glow transition-all duration-300">240 FPS</div>
+                                    <div id="badge-fps" class="text-[10px] text-cyber-neon/90 mt-1 font-semibold">▲ +%74 E-Spor Peak</div>
                                 </div>
-                                <div class="bg-cyber-card p-3 rounded-lg border border-cyber-cardLight">
-                                    <div class="text-xs text-slate-400 mb-1">SİSTEM GECİKMESİ</div>
-                                    <div class="text-xl font-bold text-cyber-neon text-neon-glow">1.2 ms</div>
+                                <div id="box-latency" class="bg-cyber-card p-3 rounded-lg border border-cyber-neon/40 transition-all duration-300 shadow-[0_0_15px_rgba(0,255,102,0.15)]">
+                                    <div class="text-[10px] text-slate-400 mb-1">SİSTEM GECİKMESİ</div>
+                                    <div id="val-latency" class="text-2xl font-bold text-cyber-neon text-neon-glow transition-all duration-300">1.2 ms</div>
+                                    <div id="badge-latency" class="text-[10px] text-cyber-neon/90 mt-1 font-semibold">▼ -8.2 ms Gecikme</div>
+                                </div>
+                            </div>
+
+                            <!-- Donanım Canlı Değerleri -->
+                            <div class="grid grid-cols-2 gap-2 text-[10px] sm:text-[11px] text-slate-400 border-t border-cyber-cardLight/70 pt-3">
+                                <div class="flex justify-between items-center bg-[#070b14] px-2.5 py-1.5 rounded border border-cyber-cardLight">
+                                    <span>DPC Latency:</span>
+                                    <span id="val-dpc" class="font-bold text-cyber-neon">8 μs (Ultra Low)</span>
+                                </div>
+                                <div class="flex justify-between items-center bg-[#070b14] px-2.5 py-1.5 rounded border border-cyber-cardLight">
+                                    <span>İşlem Sayısı:</span>
+                                    <span id="val-proc" class="font-bold text-cyber-neon">~145 Aktif</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="text-center font-mono text-xs text-cyber-neon flex items-center justify-center gap-2 pt-1">
+                        <!-- Durum Rozeti -->
+                        <div class="text-center font-mono text-xs text-cyber-neon flex items-center justify-center gap-2 pt-1 select-none">
                             <span class="w-2 h-2 rounded-full bg-cyber-neon animate-ping"></span>
-                            <span>v1.0 10 KERNEL MODÜLÜ DEVREDE</span>
+                            <span id="status-footer-text">10 KERNEL MODÜLÜ DEVREDE (v1.0)</span>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>
 
-    <!-- Modules Section -->
+    <!-- Modules Section (10 Modül Detayları) -->
     <section id="modules" class="py-20 border-t border-cyber-cardLight/60">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
-                <h2 class="text-xs font-mono tracking-widest text-cyber-neon uppercase text-neon-glow">v1.0 KERNEL MODÜLLERİ</h2>
-                <p class="text-3xl sm:text-4xl font-black text-white">Sisteminizi Uçuran 10 Profesyonel Modül</p>
-                <p class="text-slate-400 font-mono text-sm">NotLynx Optimizer v1.0 içerisinde yer alan modüllerin detaylı dökümü:</p>
+                <h2 class="text-xs font-mono tracking-widest text-cyber-neon uppercase text-neon-glow select-none">v1.0 KERNEL & GÖSTERGE SİSTEMİ</h2>
+                <p class="text-3xl sm:text-4xl font-black text-white select-none">Sisteminizi Uçuran 10 Profesyonel Modül</p>
+                <p class="text-slate-400 font-mono text-sm">NotLynx Optimizer v1.0 içerisinde yer alan doğrulanmış kernel ve donanım modülleri:</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Modüller (Hover Neon Çerçeveli) -->
+                <!-- Modül 1 -->
                 <div class="cyber-interactive-card p-6 rounded-xl">
                     <div class="flex items-center justify-between mb-3 font-mono text-xs">
                         <span class="text-cyber-neon font-bold">[01 / 10]</span>
-                        <span class="text-slate-400 bg-cyber-dark px-2 py-0.5 rounded border border-cyber-cardLight">BCDedit</span>
+                        <span class="text-slate-400 bg-cyber-dark px-2 py-0.5 rounded border border-cyber-cardLight">BCDedit HPET</span>
                     </div>
-                    <h3 class="font-bold text-lg text-white mb-2">Sistem Zamanlayıcısı</h3>
-                    <p class="text-slate-400 text-sm mb-4">BCDedit parametreleri kusursuzlaştırılarak micro-stutter önlenir ve çekirdek saat senkronizasyonu kararlı hale getirilir.</p>
+                    <h3 class="font-bold text-lg text-white mb-2">Sistem Zamanlayıcısı (TSC)</h3>
+                    <p class="text-slate-400 text-sm mb-4">BCDedit donanım zamanlayıcı sapmaları ve micro-stutter önlenir, Enhanced TSC ile saat senkronizasyonu kararlı hale getirilir.</p>
                     <code class="text-xs font-mono text-cyber-neon bg-cyber-dark p-2 rounded block border border-cyber-cardLight">bcdedit /set useplatformclock false</code>
                 </div>
 
+                <!-- Modül 2 -->
                 <div class="cyber-interactive-card p-6 rounded-xl">
                     <div class="flex items-center justify-between mb-3 font-mono text-xs">
                         <span class="text-cyber-neon font-bold">[02 / 10]</span>
                         <span class="text-slate-400 bg-cyber-dark px-2 py-0.5 rounded border border-cyber-cardLight">Ağ & Ping</span>
                     </div>
-                    <h3 class="font-bold text-lg text-white mb-2">Network Throttling Önceliği</h3>
-                    <p class="text-slate-400 text-sm mb-4">Ağ bant genişliği tamamen oyun trafiğine rezerve edilerek ping dalgalanmaları ve paket kayıpları sıfırlanır.</p>
+                    <h3 class="font-bold text-lg text-white mb-2">Network Throttling Bypass</h3>
+                    <p class="text-slate-400 text-sm mb-4">Ağ bant genişliği kısıtlamaları kaldırılır, paket trafiği tamamen oyuna ayrılır ve sistem yanıt süresi %100'e çıkarılır.</p>
                     <code class="text-xs font-mono text-cyber-neon bg-cyber-dark p-2 rounded block border border-cyber-cardLight">NetworkThrottlingIndex = 0xFFFFFFFF</code>
                 </div>
 
+                <!-- Modül 3 -->
                 <div class="cyber-interactive-card p-6 rounded-xl">
                     <div class="flex items-center justify-between mb-3 font-mono text-xs">
                         <span class="text-cyber-neon font-bold">[03 / 10]</span>
-                        <span class="text-slate-400 bg-cyber-dark px-2 py-0.5 rounded border border-cyber-cardLight">TCP/IP</span>
+                        <span class="text-slate-400 bg-cyber-dark px-2 py-0.5 rounded border border-cyber-cardLight">TCP/IP NoDelay</span>
                     </div>
-                    <h3 class="font-bold text-lg text-white mb-2">TCP No Delay (Nagle)</h3>
-                    <p class="text-slate-400 text-sm mb-4">Nagle algoritması devre dışı bırakılarak TCP paket gecikmesi ve sunucu yanıt süresi minimum seviyeye indirilir.</p>
+                    <h3 class="font-bold text-lg text-white mb-2">TCP No Delay (Nagle Bypass)</h3>
+                    <p class="text-slate-400 text-sm mb-4">Tüm aktif ağ adaptör GUID'lerinde Nagle algoritması devre dışı bırakılır. Paket gecikmesi ve ping sıçramaları sıfırlanır.</p>
                     <code class="text-xs font-mono text-cyber-neon bg-cyber-dark p-2 rounded block border border-cyber-cardLight">TcpAckFrequency = 1 | TCPNoDelay = 1</code>
                 </div>
 
+                <!-- Modül 4 -->
                 <div class="cyber-interactive-card p-6 rounded-xl">
                     <div class="flex items-center justify-between mb-3 font-mono text-xs">
                         <span class="text-cyber-neon font-bold">[04 / 10]</span>
-                        <span class="text-slate-400 bg-cyber-dark px-2 py-0.5 rounded border border-cyber-cardLight">RAM & Bellek</span>
+                        <span class="text-slate-400 bg-cyber-dark px-2 py-0.5 rounded border border-cyber-cardLight">RAM & DPC</span>
                     </div>
                     <h3 class="font-bold text-lg text-white mb-2">DisablePagingExecutive</h3>
-                    <p class="text-slate-400 text-sm mb-4">Çekirdek sürücüler RAM'de tutularak sayfalama gecikmesi (DPC latency) dramatik ölçüde düşürülür.</p>
+                    <p class="text-slate-400 text-sm mb-4">Kritik çekirdek sürücüler doğrudan fiziksel RAM'de kilitlenir. Disk sayfalama gecikmesi (DPC latency) dramatik ölçüde düşürülür.</p>
                     <code class="text-xs font-mono text-cyber-neon bg-cyber-dark p-2 rounded block border border-cyber-cardLight">DisablePagingExecutive = 1</code>
                 </div>
 
+                <!-- Modül 5 -->
                 <div class="cyber-interactive-card p-6 rounded-xl">
                     <div class="flex items-center justify-between mb-3 font-mono text-xs">
                         <span class="text-cyber-neon font-bold">[05 / 10]</span>
                         <span class="text-slate-400 bg-cyber-dark px-2 py-0.5 rounded border border-cyber-cardLight">CPU Scheduler</span>
                     </div>
-                    <h3 class="font-bold text-lg text-white mb-2">CPU Ön Plan Önceliği</h3>
-                    <p class="text-slate-400 text-sm mb-4">İşlemci gücü arka plan servislerinden alınıp doğrudan aktif oyun penceresine ve ön plan görevlerine tahsis edilir.</p>
-                    <code class="text-xs font-mono text-cyber-neon bg-cyber-dark p-2 rounded block border border-cyber-cardLight">Win32PrioritySeparation = 26</code>
+                    <h3 class="font-bold text-lg text-white mb-2">CPU Ön Plan Önceliği (38)</h3>
+                    <p class="text-slate-400 text-sm mb-4">İşlemci çevrimleri (Short Quanta, 3:1 Boost) ile doğrudan ön planda aktif olan e-spor oyun penceresine tahsis edilir.</p>
+                    <code class="text-xs font-mono text-cyber-neon bg-cyber-dark p-2 rounded block border border-cyber-cardLight">Win32PrioritySeparation = 38 (0x26)</code>
                 </div>
 
+                <!-- Modül 6 -->
                 <div class="cyber-interactive-card p-6 rounded-xl">
                     <div class="flex items-center justify-between mb-3 font-mono text-xs">
                         <span class="text-cyber-neon font-bold">[06 / 10]</span>
                         <span class="text-slate-400 bg-cyber-dark px-2 py-0.5 rounded border border-cyber-cardLight">GPU MMCSS</span>
                     </div>
                     <h3 class="font-bold text-lg text-white mb-2">GPU Oyun Görev Önceliği</h3>
-                    <p class="text-slate-400 text-sm mb-4">Multimedia Tasks (MMCSS) yapılandırılarak ekran kartı (GPU) önceliği maksimum seviyeye çıkarılır.</p>
-                    <code class="text-xs font-mono text-cyber-neon bg-cyber-dark p-2 rounded block border border-cyber-cardLight">MMCSS Games Priority = High</code>
+                    <p class="text-slate-400 text-sm mb-4">Multimedia Tasks (MMCSS) yapılandırılarak GPU Priority 8 seviyesine, SFIO Priority ise High moduna getirilir.</p>
+                    <code class="text-xs font-mono text-cyber-neon bg-cyber-dark p-2 rounded block border border-cyber-cardLight">GPU Priority = 8 | Category = High</code>
                 </div>
 
+                <!-- Modül 7 -->
                 <div class="cyber-interactive-card p-6 rounded-xl">
                     <div class="flex items-center justify-between mb-3 font-mono text-xs">
                         <span class="text-cyber-neon font-bold">[07 / 10]</span>
-                        <span class="text-slate-400 bg-cyber-dark px-2 py-0.5 rounded border border-cyber-cardLight">USB & Raw Input</span>
+                        <span class="text-slate-400 bg-cyber-dark px-2 py-0.5 rounded border border-cyber-cardLight">USB & Aim</span>
                     </div>
-                    <h3 class="font-bold text-lg text-white mb-2">Fare Gecikmesi Sıfırlama</h3>
-                    <p class="text-slate-400 text-sm mb-4">USB güç tasarrufu kapatılır, Raw Input aktif edilerek 1:1 e-spor fare hassasiyeti ve sıfır gecikme sağlanır.</p>
-                    <code class="text-xs font-mono text-cyber-neon bg-cyber-dark p-2 rounded block border border-cyber-cardLight">Raw Input 1:1 Direct Hook</code>
+                    <h3 class="font-bold text-lg text-white mb-2">USB Raw Input (1:1 Aim)</h3>
+                    <p class="text-slate-400 text-sm mb-4">Windows fare ivmelenmesi tamamen kaldırılır, 1:1 ham donanım girdisi (Raw Input) ile kusursuz e-spor nişan hassasiyeti sağlanır.</p>
+                    <code class="text-xs font-mono text-cyber-neon bg-cyber-dark p-2 rounded block border border-cyber-cardLight">MouseSpeed = 0 | RawInput = True</code>
                 </div>
 
+                <!-- Modül 8 -->
                 <div class="cyber-interactive-card p-6 rounded-xl">
                     <div class="flex items-center justify-between mb-3 font-mono text-xs">
                         <span class="text-cyber-neon font-bold">[08 / 10]</span>
-                        <span class="text-slate-400 bg-cyber-dark px-2 py-0.5 rounded border border-cyber-cardLight">Services Shield</span>
+                        <span class="text-slate-400 bg-cyber-dark px-2 py-0.5 rounded border border-cyber-cardLight">Telemetry Stop</span>
                     </div>
-                    <h3 class="font-bold text-lg text-white mb-2">Telemetry & SysMain Kapatma</h3>
-                    <p class="text-slate-400 text-sm mb-4">DiagTrack, SysMain ve disk yoran arama indeksleme servisleri durdurularak disk darboğazı önlenir.</p>
-                    <code class="text-xs font-mono text-cyber-neon bg-cyber-dark p-2 rounded block border border-cyber-cardLight">sc config DiagTrack start= disabled</code>
+                    <h3 class="font-bold text-lg text-white mb-2">Telemetry & Servis Kalkanı</h3>
+                    <p class="text-slate-400 text-sm mb-4">DiagTrack, SysMain (SuperFetch) ve disk yoran WSearch servisleri durdurularak disk ve işlemci darboğazı önlenir.</p>
+                    <code class="text-xs font-mono text-cyber-neon bg-cyber-dark p-2 rounded block border border-cyber-cardLight">sc stop DiagTrack & SysMain & WSearch</code>
                 </div>
 
+                <!-- Modül 9 -->
                 <div class="cyber-interactive-card p-6 rounded-xl">
                     <div class="flex items-center justify-between mb-3 font-mono text-xs">
                         <span class="text-cyber-neon font-bold">[09 / 10]</span>
                         <span class="text-slate-400 bg-cyber-dark px-2 py-0.5 rounded border border-cyber-cardLight">Xbox DVR</span>
                     </div>
-                    <h3 class="font-bold text-lg text-white mb-2">FPS Drop Kayıt Kancaları</h3>
-                    <p class="text-slate-400 text-sm mb-4">Arka planda çalışan Xbox Game DVR ve ekran kaydı kancaları tamamen devre dışı bırakılır.</p>
-                    <code class="text-xs font-mono text-cyber-neon bg-cyber-dark p-2 rounded block border border-cyber-cardLight">AllowGameDVR = 0</code>
+                    <h3 class="font-bold text-lg text-white mb-2">Xbox DVR & Drop Kancaları</h3>
+                    <p class="text-slate-400 text-sm mb-4">Arka planda gizli kayıt alan Xbox Game DVR, GameBarPresenceWriter ve ekran yakalama kancaları tamamen kapatılır.</p>
+                    <code class="text-xs font-mono text-cyber-neon bg-cyber-dark p-2 rounded block border border-cyber-cardLight">AppCaptureEnabled = 0</code>
                 </div>
 
-                <div class="cyber-interactive-card p-6 rounded-xl md:col-span-2 lg:col-span-1">
+                <!-- Modül 10 -->
+                <div class="cyber-interactive-card p-6 rounded-xl md:col-span-2 lg:col-span-3">
                     <div class="flex items-center justify-between mb-3 font-mono text-xs">
                         <span class="text-cyber-neon font-bold">[10 / 10]</span>
-                        <span class="text-slate-400 bg-cyber-dark px-2 py-0.5 rounded border border-cyber-cardLight">Ultimate Power</span>
+                        <span class="text-slate-400 bg-cyber-dark px-2 py-0.5 rounded border border-cyber-cardLight">Denetim Masası Güç Planı</span>
                     </div>
-                    <h3 class="font-bold text-lg text-white mb-2">Nihai Performans Modu</h3>
-                    <p class="text-slate-400 text-sm mb-4">İşlemci frekans kilitleri tamamen açılır ve Turbo Boost parametreleri maksimum performans için optimize edilir.</p>
-                    <code class="text-xs font-mono text-cyber-neon bg-cyber-dark p-2 rounded block border border-cyber-cardLight">powercfg -duplicatescheme e942b02...</code>
+                    <h3 class="font-bold text-lg text-white mb-2">NotLynx Optimizer - Ultimate Power Plan</h3>
+                    <p class="text-slate-400 text-sm mb-4">Windows Denetim Masası içerisine resmi 'NotLynx Optimizer - Ultimate Power' güç planı oluşturulup atanır. İşlemci çekirdek uyutması (Core Parking) kapatılır ve maksimum saat frekansları kilitlenir.</p>
+                    <code class="text-xs font-mono text-cyber-neon bg-cyber-dark p-2 rounded block border border-cyber-cardLight">powercfg -changename &lt;GUID&gt; "NotLynx Optimizer - Ultimate Power"</code>
                 </div>
             </div>
         </div>
@@ -309,19 +449,20 @@
     <section id="simulator" class="py-20 border-t border-cyber-cardLight/60">
         <div class="max-w-5xl mx-auto px-4 sm:px-6">
             <div class="text-center mb-12 space-y-3">
-                <h2 class="text-xs font-mono tracking-widest text-cyber-neon uppercase text-neon-glow">CANLI SİMÜLATÖR</h2>
-                <p class="text-3xl sm:text-4xl font-black text-white">Canlı v1.0 Script Simülatörü</p>
+                <h2 class="text-xs font-mono tracking-widest text-cyber-neon uppercase text-neon-glow select-none">CANLI SİMÜLATÖR</h2>
+                <p class="text-3xl sm:text-4xl font-black text-white select-none">Canlı v1.0 Script Simülatörü</p>
                 <p class="text-slate-400">NotLynx Optimizer v1.0'ın arka planda çalıştırdığı 10 aşamalı çekirdek motorunu doğrudan tarayıcınızda test edin.</p>
             </div>
             
             <div class="cyber-interactive-card rounded-2xl p-6 space-y-6">
                 <div class="bg-[#040609] border border-cyber-cardLight rounded-xl p-4 font-mono text-xs sm:text-sm text-slate-300 h-80 overflow-y-auto space-y-2">
-                    <div class="flex items-center justify-between pb-3 border-b border-cyber-cardLight text-xs text-slate-500">
+                    <div class="flex items-center justify-between pb-3 border-b border-cyber-cardLight text-xs text-slate-500 select-none">
                         <div class="flex items-center gap-2">
                             <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
                             <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
                             <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
-                            <span class="ml-2 text-slate-400">C:\WINDOWS\system32\cmd.exe - NotLynxOptimizer v1.0 (UAC Admin)</span>
+                            <span class="ml-2 text-slate-400 hidden sm:inline">C:\WINDOWS\system32\cmd.exe - NotLynxOptimizer v1.0 (UAC Admin)</span>
+                            <span class="ml-2 text-slate-400 sm:hidden">NotLynxOptimizer v1.0</span>
                         </div>
                         <span class="text-cyber-neon bg-cyber-dark px-2 py-0.5 rounded font-bold border border-cyber-neon/30">ROOT ACCESS</span>
                     </div>
@@ -336,10 +477,10 @@
                         Motor Durumu: <span id="motor-status" class="text-cyber-neon font-bold">Bekliyor (Ready)</span>
                     </div>
                     <div class="flex items-center gap-3 w-full sm:w-auto">
-                        <button onclick="startSimulation()" class="w-full sm:w-auto font-bold text-sm tracking-wider px-6 py-3 rounded-lg bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_20px_rgba(0,255,102,0.4)] font-mono">
+                        <button onclick="startSimulation()" class="w-full sm:w-auto font-bold text-xs sm:text-sm tracking-wider px-6 py-3.5 rounded-lg bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_20px_rgba(0,255,102,0.4)] font-mono">
                             10 AŞAMALI SİMÜLASYONU BAŞLAT
                         </button>
-                        <button onclick="resetSimulation()" class="font-bold text-sm tracking-wider px-4 py-3 rounded-lg bg-cyber-cardLight text-slate-300 hover:text-white border border-cyber-cardLight hover:border-cyber-neon/40 transition-all duration-300 font-mono">
+                        <button onclick="resetSimulation()" class="font-bold text-xs sm:text-sm tracking-wider px-4 py-3.5 rounded-lg bg-cyber-cardLight text-slate-300 hover:text-white border border-cyber-cardLight hover:border-cyber-neon/40 transition-all duration-300 font-mono">
                             SIFIRLA
                         </button>
                     </div>
@@ -352,8 +493,8 @@
     <section id="transparency" class="py-20 border-t border-cyber-cardLight/60">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
             <div class="text-center mb-16 space-y-3">
-                <h2 class="text-xs font-mono tracking-widest text-cyber-neon uppercase text-neon-glow">ŞEFFAFLIK & GÜVENLİK</h2>
-                <p class="text-3xl sm:text-4xl font-black text-white">Şeffaflık, Açık Kaynak & Güvenilirlik</p>
+                <h2 class="text-xs font-mono tracking-widest text-cyber-neon uppercase text-neon-glow select-none">ŞEFFAFLIK & GÜVENLİK</h2>
+                <p class="text-3xl sm:text-4xl font-black text-white select-none">Şeffaflık, Açık Kaynak & Güvenilirlik</p>
                 <p class="text-slate-400 max-w-2xl mx-auto">NotLynx Optimizer v1.0, tam şeffaflık ilkeleriyle geliştirilmiştir. Gizli arka plan süreçleri barındırmaz, tamamen kullanıcı kontrolündedir.</p>
             </div>
 
@@ -363,8 +504,8 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
                     </div>
                     <h3 class="font-bold text-lg text-white font-mono">Açık Kaynak Kod</h3>
-                    <p class="text-slate-400 text-sm">Python dilinde yazılmış tüm kaynak kodları inceleyabilir, kendi özelleştirmelerinizi ekleyebilir ve PyInstaller ile kendi .exe dosyanızı güvenle derleyebilirsiniz.</p>
-                    <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer" target="_blank" class="inline-block text-xs font-mono text-cyber-neon hover:underline pt-2">GitHub: NotLynx / NotLynxOptimizer &rarr;</a>
+                    <p class="text-slate-400 text-sm">Python dilinde yazılmış tüm kaynak kodları GitHub üzerinde inceleyebilir, kendi özelleştirmelerinizi ekleyebilir ve PyInstaller ile kendi .exe dosyanızı güvenle derleyebilirsiniz.</p>
+                    <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer" target="_blank" class="inline-block text-xs font-mono text-cyber-neon hover:underline pt-2">GitHub: samet2007topcu-art &rarr;</a>
                 </div>
 
                 <div class="cyber-interactive-card p-6 rounded-xl space-y-4">
@@ -373,16 +514,16 @@
                     </div>
                     <h3 class="font-bold text-lg text-white font-mono">Güvenilirlik & UAC</h3>
                     <p class="text-slate-400 text-sm">Kayıt defteri ve kernel ayarlarını değiştirebilmek için zorunlu olan Yönetici (UAC) yetkisi `runas-admin` bayrağı ile güvenli bir şekilde talep edilir. 0% zararlı yazılım temizliği.</p>
-                    <span class="inline-block text-xs font-mono text-cyber-neon pt-2">VirusTotal Verified: Clean</span>
+                    <span class="inline-block text-xs font-mono text-cyber-neon pt-2">VirusTotal: Temiz (Verified)</span>
                 </div>
 
                 <div class="cyber-interactive-card p-6 rounded-xl space-y-4">
                     <div class="w-10 h-10 rounded-lg bg-cyber-dark border border-cyber-neon/40 flex items-center justify-center text-cyber-neon font-bold box-neon-glow">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                     </div>
-                    <h3 class="font-bold text-lg text-white font-mono">Kaynakça (References)</h3>
-                    <p class="text-slate-400 text-sm">Microsoft Windows Developer Documentation, Sysinternals Suite (Mark Russinovich DPC latency reference), BCDedit Technical Reference and TCP/IP stack optimization standards.</p>
-                    <span class="inline-block text-xs font-mono text-cyber-neon pt-2">Docs: Microsoft Docs & Win32 API</span>
+                    <h3 class="font-bold text-lg text-white font-mono">Teknik Kaynakça</h3>
+                    <p class="text-slate-400 text-sm">Microsoft Windows Developer Documentation, Mark Russinovich Sysinternals Suite (DPC latency guide), BCDedit Technical Reference ve TCP/IP stack optimizasyon standartları.</p>
+                    <span class="inline-block text-xs font-mono text-cyber-neon pt-2">Win32 API & Microsoft Docs</span>
                 </div>
             </div>
         </div>
@@ -392,8 +533,8 @@
     <section id="install" class="py-20 border-t border-cyber-cardLight/60">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
             <div class="text-center mb-16 space-y-3">
-                <h2 class="text-xs font-mono tracking-widest text-cyber-neon uppercase text-neon-glow">KURULUM & KULLANIM</h2>
-                <p class="text-3xl sm:text-4xl font-black text-white">Nasıl Çalıştırılır?</p>
+                <h2 class="text-xs font-mono tracking-widest text-cyber-neon uppercase text-neon-glow select-none">KURULUM & KULLANIM</h2>
+                <p class="text-3xl sm:text-4xl font-black text-white select-none">Nasıl Çalıştırılır?</p>
                 <p class="text-slate-400">NotLynx Optimizer v1.0'ı çalıştırmak sadece 3 basit adımdan oluşur.</p>
             </div>
 
@@ -401,25 +542,25 @@
                 <div class="cyber-interactive-card p-8 rounded-2xl text-center space-y-4">
                     <div class="w-12 h-12 rounded-full bg-cyber-dark border-2 border-cyber-neon text-cyber-neon font-bold font-mono text-lg flex items-center justify-center mx-auto box-neon-glow">1</div>
                     <h3 class="font-bold text-xl text-white font-mono">EXE Dosyasını İndir</h3>
-                    <p class="text-slate-400 text-sm">Sitemizden güncel NotLynxOptimizer_GUI.exe dosyasını güvenle bilgisayarınıza indirin.</p>
+                    <p class="text-slate-400 text-sm">Sitemizden veya resmi GitHub sayfamızdan güncel NotLynxOptimizer_GUI.exe dosyasını indirin.</p>
                 </div>
                 <div class="cyber-interactive-card p-8 rounded-2xl text-center space-y-4">
                     <div class="w-12 h-12 rounded-full bg-cyber-dark border-2 border-cyber-neon text-cyber-neon font-bold font-mono text-lg flex items-center justify-center mx-auto box-neon-glow">2</div>
                     <h3 class="font-bold text-xl text-white font-mono">Yönetici Olarak Çalıştır</h3>
-                    <p class="text-slate-400 text-sm">UAC yetkisi talep eden uygulamaya sağ tıklayıp "Yönetici Olarak Çalıştır" seçeneğini kullanın.</p>
+                    <p class="text-slate-400 text-sm">UAC yetkisi talep eden uygulamaya sağ tıklayıp "Yönetici Olarak Çalıştır" seçeneğini seçin.</p>
                 </div>
                 <div class="cyber-interactive-card p-8 rounded-2xl text-center space-y-4">
                     <div class="w-12 h-12 rounded-full bg-cyber-dark border-2 border-cyber-neon text-cyber-neon font-bold font-mono text-lg flex items-center justify-center mx-auto box-neon-glow">3</div>
                     <h3 class="font-bold text-xl text-white font-mono">Sistemi Yeniden Başlat</h3>
-                    <p class="text-slate-400 text-sm">10 modül başarıyla uygulandıktan sonra bilgisayarınızı yeniden başlatın ve akıcılığın tadını çıkarın!</p>
+                    <p class="text-slate-400 text-sm">Gösterge panelini inceleyin, 10 modülü uygulayın ve tam çekirdek aktivasyonu için bilgisayarınızı yeniden başlatın!</p>
                 </div>
             </div>
 
             <div class="cyber-interactive-card rounded-2xl p-8 sm:p-12 text-center space-y-6">
-                <h3 class="text-2xl sm:text-3xl font-black text-white font-mono">NOTLYNX OPTIMIZER v1.0 İLE SINIRLARI KALDIR!</h3>
-                <p class="text-slate-300 max-w-xl mx-auto text-sm">Tamamen açık kaynak, güvenli ve 10 modüllü profesyonel optimizasyon aracı şimdi hazır.</p>
+                <h3 class="text-2xl sm:text-3xl font-black text-white font-mono select-none">NOTLYNX OPTIMIZER v1.0 İLE SINIRLARI KALDIR!</h3>
+                <p class="text-slate-300 max-w-xl mx-auto text-sm">OptimizerDuck stili donanım gösterge paneli, 10 modüllü profesyonel kernel optimizasyonu ve derin artık temizleyici şimdi tek çatıda.</p>
                 <div>
-                    <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases/download/v1.0/NotLynxOptimizer_GUI.exe" class="inline-flex items-center gap-3 font-bold text-base tracking-wider px-8 py-4 rounded-lg bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_30px_rgba(0,255,102,0.6)] font-mono">
+                    <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases/download/v1.0/NotLynxOptimizer_GUI.exe" class="inline-flex items-center gap-3 font-bold text-sm sm:text-base tracking-wider px-8 py-4 rounded-xl bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_30px_rgba(0,255,102,0.6)] font-mono">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                         <span>NotLynxOptimizer_GUI.exe İNDİR (v1.0)</span>
                     </a>
@@ -429,39 +570,207 @@
     </section>
 
     <!-- Footer -->
-    <footer class="py-12 border-t border-cyber-cardLight text-center font-mono space-y-4">
-        <div class="flex items-center justify-center gap-2">
-            <div class="w-6 h-6 relative flex items-center justify-center bg-cyber-card rounded border border-cyber-neon/40">
-                <svg class="w-4 h-4 text-cyber-neon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M50 15 L82 28 L72 75 L50 90 L28 75 L18 28 Z" stroke="currentColor" stroke-width="4" stroke-linejoin="round" fill="rgba(0, 255, 102, 0.05)"/>
-                    <polygon points="35,45 45,45 40,52" fill="currentColor"/>
-                    <polygon points="65,45 55,45 60,52" fill="currentColor"/>
-                    <path d="M50 60 L45 68 L55 68 Z" fill="currentColor"/>
+    <footer class="py-12 border-t border-cyber-cardLight text-center font-mono space-y-6">
+        <div class="flex items-center justify-center gap-3 select-none">
+            <div class="w-8 h-8 relative flex items-center justify-center bg-cyber-card rounded-lg border border-cyber-neon/40 shadow-[0_0_12px_rgba(0,255,102,0.3)]">
+                <svg class="w-5 h-5 text-cyber-neon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="30" y="30" width="452" height="452" rx="100" fill="#090d14" stroke="#00ff66" stroke-width="20"/>
+                    <path d="M256 180 L196 165 L100 120 L116 75 L61 160 L66 240 L126 275 L91 320 L186 370 L256 410 L326 370 L421 320 L386 275 L446 240 L451 160 L396 75 L412 120 L316 165 Z" fill="#0d141f" stroke="#00ff66" stroke-width="16"/>
                 </svg>
             </div>
-            <span class="font-bold tracking-wider text-white">NOTLYNX OPTIMIZER v1.0</span>
+            <span class="font-bold tracking-wider text-white text-sm sm:text-base">NOTLYNX OPTIMIZER v1.0</span>
         </div>
-        <div class="text-xs text-cyber-neon opacity-80 italic">engineered by notlynx</div>
-        <div class="flex items-center justify-center gap-6 text-xs text-slate-400 pt-2">
-            <a href="https://tiktok.com/@NotLynx_7" target="_blank" class="hover:text-cyber-neon transition-colors">TikTok (@NotLynx_7)</a>
-            <a href="https://instagram.com/NotLynx7" target="_blank" class="hover:text-cyber-neon transition-colors">Instagram (@NotLynx7)</a>
+        
+        <div class="text-xs text-cyber-neon opacity-80 italic select-none">engineered with passion by notlynx (Samet)</div>
+        
+        <!-- Social Icons in Footer -->
+        <div class="flex items-center justify-center gap-5 text-xs text-slate-300 pt-2">
+            <!-- TikTok -->
+            <a href="https://tiktok.com/@NotLynx_7" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-cyber-card border border-cyber-cardLight hover:border-cyber-cyan hover:text-cyber-cyan transition-all duration-300">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                    <path d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.67a2.89 2.89 0 0 1-5.201 1.743l-.068-.102a2.89 2.89 0 0 1 2.378-4.529c.394 0 .771.078 1.116.219V9.45a6.333 6.333 0 0 0-1.116-.1c-3.535 0-6.4 2.865-6.4 6.4s2.865 6.4 6.4 6.4c3.484 0 6.321-2.784 6.398-6.246V9.487c1.332.96 2.973 1.526 4.75 1.55v-3.48a4.834 4.834 0 0 1-1.042-.871z"/>
+                </svg>
+                <span>TikTok (@NotLynx_7)</span>
+            </a>
+
+            <!-- Instagram -->
+            <a href="https://instagram.com/NotLynx7" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-cyber-card border border-cyber-cardLight hover:border-[#ec4899] hover:text-[#ec4899] transition-all duration-300">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+                <span>Instagram (@NotLynx7)</span>
+            </a>
+
+            <!-- GitHub -->
+            <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer" target="_blank" rel="noopener noreferrer" class="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-lg bg-cyber-card border border-cyber-cardLight hover:border-cyber-neon hover:text-cyber-neon transition-all duration-300">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                </svg>
+                <span>GitHub</span>
+            </a>
         </div>
-        <p class="text-xs text-slate-600 pt-4">© 2026 NotLynx Team. Tüm Hakları Saklıdır.</p>
+
+        <p class="text-xs text-slate-500 pt-3 select-none">© 2026 NotLynx Team (Samet). Tüm Hakları Saklıdır. NotLynx Optimizer v1.0 Anti-Theft Shield Korumalıdır.</p>
     </footer>
 
-    <!-- Simulator Script -->
+    <!-- JAVASCRIPT: ANTI-THEFT SHIELD + FPS SIMULATOR SWITCH + TERMINAL -->
     <script>
+        // ==========================================
+        // 1. ANTI-THEFT & COPY PROTECTION SYSTEM
+        // ==========================================
+        function showSecurityToast(message) {
+            const toast = document.getElementById('security-toast');
+            const msgEl = document.getElementById('toast-message');
+            if (message) msgEl.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(window._toastTimeout);
+            window._toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3500);
+        }
+
+        function preventCopy(e, customMsg) {
+            e.preventDefault();
+            showSecurityToast(customMsg || "Bu içerik ve logo NotLynx telif hakları ile korunmaktadır. Kopyalanamaz.");
+            return false;
+        }
+
+        // Resimler ve Logolar üzerinde Sağ Tık ve Sürükleme Engelleme
+        document.querySelectorAll('img, svg, .protected-brand').forEach(el => {
+            el.addEventListener('contextmenu', (e) => preventCopy(e, "NotLynx v1.0 logosu ve marka varlıkları telif hakkı korumalıdır."));
+            el.addEventListener('dragstart', (e) => e.preventDefault());
+        });
+
+        // Genel Sağ Tık Koruması (İsteğe bağlı veya hassas alanlar)
+        document.addEventListener('contextmenu', (e) => {
+            const target = e.target;
+            if (target.closest('.protected-brand') || target.tagName === 'IMG' || target.tagName === 'SVG' || target.closest('header')) {
+                preventCopy(e, "NotLynx marka öğeleri koruma altındadır.");
+            }
+        });
+
+        // Kopyalama Olayında Telif Filigranı Enjeksiyonu
+        document.addEventListener('copy', (e) => {
+            const selection = window.getSelection().toString();
+            if (selection.length > 30) {
+                const watermark = "\n\n[Kaynak: NotLynx Optimizer v1.0 • Geliştirici: @NotLynx_7 / @NotLynx7 • https://github.com/samet2007topcu-art/NotLynxOptimizer]";
+                e.clipboardData.setData('text/plain', selection + watermark);
+                e.preventDefault();
+                showSecurityToast("Kopyalanan metne resmi NotLynx v1.0 telif kaynağı eklendi.");
+            }
+        });
+
+        // Developer Tools & Shortcut Intercept
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey && (e.key === 'u' || e.key === 'U')) || 
+                (e.ctrlKey && (e.key === 's' || e.key === 'S'))) {
+                e.preventDefault();
+                showSecurityToast("NotLynx Optimizer v1.0 kaynak kodları korumalıdır.");
+            }
+        });
+
+        console.log("%cNOTLYNX OPTIMIZER v1.0", "color: #00ff66; font-size: 20px; font-weight: bold;");
+        console.log("%c© 2026 NotLynx (Samet). All Rights Reserved. Reverse engineering or cloning is strictly prohibited.", "color: #00f0ff; font-size: 11px;");
+
+        // ==========================================
+        // 2. İNTERAKTİF FPS VE GECİKME SİMÜLATÖRÜ SWITCH
+        // ==========================================
+        let isOptimizedActive = true;
+
+        function toggleFpsSimulator() {
+            isOptimizedActive = !isOptimizedActive;
+
+            const btn = document.getElementById('fps-toggle-btn');
+            const knob = document.getElementById('fps-toggle-knob');
+            const modeText = document.getElementById('fps-mode-text');
+            const modeDot = document.getElementById('fps-mode-dot');
+            const boxFps = document.getElementById('box-fps');
+            const boxLat = document.getElementById('box-latency');
+            const valFps = document.getElementById('val-fps');
+            const badgeFps = document.getElementById('badge-fps');
+            const valLat = document.getElementById('val-latency');
+            const badgeLat = document.getElementById('badge-latency');
+            const valDpc = document.getElementById('val-dpc');
+            const valProc = document.getElementById('val-proc');
+            const statusFooter = document.getElementById('status-footer-text');
+
+            if (isOptimizedActive) {
+                // NOTLYNX v1.0 AKTİF (OPTIMIZED)
+                btn.className = "w-12 h-6 bg-cyber-neon rounded-full p-1 flex items-center justify-end box-neon-glow cursor-pointer transition-all duration-300 focus:outline-none";
+                knob.className = "w-4 h-4 bg-black rounded-full shadow-md transition-all duration-300 transform translate-x-0";
+                
+                modeText.textContent = "NOTLYNX v1.0 (DEVREDE)";
+                modeText.className = "text-cyber-neon";
+                modeDot.className = "w-2 h-2 rounded-full bg-cyber-neon animate-pulse";
+
+                boxFps.className = "bg-cyber-card p-3 rounded-lg border border-cyber-neon/40 transition-all duration-300 shadow-[0_0_15px_rgba(0,255,102,0.15)]";
+                boxLat.className = "bg-cyber-card p-3 rounded-lg border border-cyber-neon/40 transition-all duration-300 shadow-[0_0_15px_rgba(0,255,102,0.15)]";
+
+                valFps.textContent = "240 FPS";
+                valFps.className = "text-2xl font-bold text-cyber-neon text-neon-glow transition-all duration-300";
+                badgeFps.textContent = "▲ +%74 E-Spor Peak";
+                badgeFps.className = "text-[10px] text-cyber-neon/90 mt-1 font-semibold";
+
+                valLat.textContent = "1.2 ms";
+                valLat.className = "text-2xl font-bold text-cyber-neon text-neon-glow transition-all duration-300";
+                badgeLat.textContent = "▼ -8.2 ms Gecikme";
+                badgeLat.className = "text-[10px] text-cyber-neon/90 mt-1 font-semibold";
+
+                valDpc.textContent = "8 μs (Ultra Low)";
+                valDpc.className = "font-bold text-cyber-neon";
+
+                valProc.textContent = "~145 Aktif";
+                valProc.className = "font-bold text-cyber-neon";
+
+                statusFooter.textContent = "10 KERNEL MODÜLÜ DEVREDE (v1.0)";
+                statusFooter.className = "text-cyber-neon";
+            } else {
+                // STANDART WINDOWS (KAPALI)
+                btn.className = "w-12 h-6 bg-slate-700 rounded-full p-1 flex items-center justify-start cursor-pointer transition-all duration-300 focus:outline-none";
+                knob.className = "w-4 h-4 bg-slate-300 rounded-full shadow-md transition-all duration-300 transform translate-x-0";
+
+                modeText.textContent = "STANDART WINDOWS (KAPALI)";
+                modeText.className = "text-amber-400";
+                modeDot.className = "w-2 h-2 rounded-full bg-amber-400";
+
+                boxFps.className = "bg-[#06080e] p-3 rounded-lg border border-slate-700 transition-all duration-300";
+                boxLat.className = "bg-[#06080e] p-3 rounded-lg border border-slate-700 transition-all duration-300";
+
+                valFps.textContent = "138 FPS";
+                valFps.className = "text-2xl font-bold text-slate-300 transition-all duration-300";
+                badgeFps.textContent = "● Varsayılan Stok Değer";
+                badgeFps.className = "text-[10px] text-slate-500 mt-1 font-semibold";
+
+                valLat.textContent = "9.4 ms";
+                valLat.className = "text-2xl font-bold text-rose-400 transition-all duration-300";
+                badgeLat.textContent = "▲ Yüksek Gecikme & Drop";
+                badgeLat.className = "text-[10px] text-rose-400/80 mt-1 font-semibold";
+
+                valDpc.textContent = "195 μs (Stutter Riski)";
+                valDpc.className = "font-bold text-amber-400";
+
+                valProc.textContent = "285+ Aktif";
+                valProc.className = "font-bold text-rose-400";
+
+                statusFooter.textContent = "OPTİMİZASYON DEVRE DIŞI (STOK WINDOWS)";
+                statusFooter.className = "text-slate-400";
+            }
+        }
+
+        // ==========================================
+        // 3. 10 MODÜLLÜ TERMİNAL SİMÜLATÖRÜ
+        // ==========================================
         const logs = [
             { text: "[1/10] BCDedit /set useplatformclock false [BAŞARILI]", desc: "✓ Donanım zamanlayıcı sapmaları ve micro-stutter önlendi." },
             { text: "[2/10] NetworkThrottlingIndex = 0xFFFFFFFF [BAŞARILI]", desc: "✓ Ağ bant genişliği oyun trafiğine rezerve edildi." },
             { text: "[3/10] TcpAckFrequency & TcpNoDelay = 1 [BAŞARILI]", desc: "✓ TCP paket gecikmesi ve ping dalgalanmaları kaldırıldı." },
-            { text: "[4/10] DisablePagingExecutive = 1 [BASHARILI]", desc: "✓ Çekirdek sürücüler RAM'e sabitlendi, DPC latency düşürüldü." },
-            { text: "[5/10] Win32PrioritySeparation = 26 [BAŞARILI]", desc: "✓ İşlemci gücü aktif oyun penceresine önceliklendirildi." },
-            { text: "[6/10] MMCSS Games Priority = High [BAŞARILI]", desc: "✓ Ekran kartı (GPU) oyun görev önceliği maksimuma çıkarıldı." },
+            { text: "[4/10] DisablePagingExecutive = 1 [BAŞARILI]", desc: "✓ Çekirdek sürücüler RAM'e sabitlendi, DPC latency düşürüldü." },
+            { text: "[5/10] Win32PrioritySeparation = 38 [BAŞARILI]", desc: "✓ İşlemci çevrimleri (Short Quanta 3:1) ön plan oyununa ayrıldı." },
+            { text: "[6/10] MMCSS Games GPU Priority = 8 High [BAŞARILI]", desc: "✓ Ekran kartı (GPU) oyun görev önceliği maksimuma çıkarıldı." },
             { text: "[7/10] USB Raw Input 1:1 Direct Hook [BAŞARILI]", desc: "✓ Fare gecikmesi sıfırlandı, 1:1 e-spor fare hassasiyeti aktif." },
             { text: "[8/10] sc config DiagTrack / SysMain start= disabled [BAŞARILI]", desc: "✓ DiagTrack, SysMain ve disk yoran arama servisleri durduruldu." },
             { text: "[9/10] Xbox Game DVR & Ekran Kaydı Servisleri Devre Dışı [BAŞARILI]", desc: "✓ FPS drop yaratan tüm Xbox kayıt kancaları kaldırıldı." },
-            { text: "[10/10] Nihai Performans (Ultimate Power) Güç Planı Aktif Ediliyor...", desc: "powercfg -duplicatescheme e942b02-d5df-448d-aa00-03f14749eb61 [BAŞARILI]" },
+            { text: "[10/10] NotLynx Optimizer - Ultimate Power Plan Aktif [BAŞARILI]", desc: "✓ Denetim Masası Güç Seçenekleri altına NotLynx Ultimate Power yazıldı." },
             { text: "==================================================", desc: "  [+] ROOT ACCESS: SECURED - ELITE OPTIMIZED\n      NotLynx Optimizer v1.0 başarıyla uygulandı!\n      Değişikliklerin tamamen aktif olması için\n      Lütfen sisteminizi yeniden başlatın.\n==================================================" }
         ];
 
@@ -499,7 +808,7 @@
                     statusEl.textContent = 'Tamamlandı (Reboot Gerekli)';
                     statusEl.className = 'text-cyber-neon font-bold';
                 }
-            }, 450);
+            }, 400);
         }
 
         function resetSimulation() {

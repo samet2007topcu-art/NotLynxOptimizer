@@ -13,3 +13,6 @@ build/
 
 # Logs
 *.log
+
+# Nested legacy directory
+NotLynxOptimizer/

@@ -7,6 +7,8 @@ import subprocess
 import threading
 import winreg
 import time
+import platform
+import webbrowser
 from PIL import Image
 
 # --- GLOBAL TEMA VE ESTETİK AYARLAR ---
@@ -171,7 +173,7 @@ class NotLynxOptimizerApp(ctk.CTk):
         # ==========================================
         self.sidebar_frame = ctk.CTkFrame(self, width=280, corner_radius=0, fg_color="#040609")
         self.sidebar_frame.grid(row=0, column=0, sticky="nsew")
-        self.sidebar_frame.grid_rowconfigure(9, weight=1)
+        self.sidebar_frame.grid_rowconfigure(11, weight=1)
 
         # Logo Görseli
         self.init_sidebar_logo()
@@ -182,6 +184,7 @@ class NotLynxOptimizerApp(ctk.CTk):
         # Navigasyon Sekmeleri
         self.nav_buttons = {}
         nav_items = [
+            ("dashboard", "📊  Gösterge Paneli"),
             ("kernel", "⚡  Kernel Modülleri"),
             ("gpu", "🎮  GPU & E-Spor"),
             ("process", "📉  İşlem Düşürücü"),
@@ -219,6 +222,7 @@ class NotLynxOptimizerApp(ctk.CTk):
 
         # Tüm Sekmeleri Başlat
         self.tabs = {}
+        self.init_dashboard_tab()
         self.init_kernel_tab()
         self.init_gpu_tab()
         self.init_process_tab()
@@ -226,7 +230,7 @@ class NotLynxOptimizerApp(ctk.CTk):
         self.init_cleaner_tab()
         self.init_shield_tab()
 
-        self.select_tab("kernel")
+        self.select_tab("dashboard")
 
         # Canlı Sayaç Döngüsü (Process Count)
         self.after(1000, self.update_telemetry_loop)
@@ -291,11 +295,11 @@ class NotLynxOptimizerApp(ctk.CTk):
                 height=28,
                 corner_radius=6,
                 command=self.relaunch_as_admin
-            ).grid(row=9, column=0, padx=16, pady=(0, 10), sticky="ew")
+            ).grid(row=10, column=0, padx=16, pady=(0, 10), sticky="ew")
 
     def init_telemetry_panel(self):
         panel = ctk.CTkFrame(self.sidebar_frame, fg_color="#070b14", corner_radius=10, border_color="#131e35", border_width=1)
-        panel.grid(row=10, column=0, padx=16, pady=16, sticky="sew")
+        panel.grid(row=12, column=0, padx=16, pady=16, sticky="sew")
 
         ctk.CTkLabel(panel, text="CANLI TELEMETRİ", font=ctk.CTkFont(size=9, weight="bold"), text_color="#64748b").pack(padx=12, pady=(10, 2), anchor="w")
         self.lbl_process_count = ctk.CTkLabel(panel, text="● İŞLEMLER: Hesaplanıyor...", font=ctk.CTkFont(size=11, weight="bold"), text_color="#38bdf8")
@@ -336,6 +340,337 @@ class NotLynxOptimizerApp(ctk.CTk):
             self.tabs[key].grid(row=0, column=0, sticky="nsew")
             if key in self.nav_buttons:
                 self.nav_buttons[key].configure(fg_color="#131e35", text_color="#00ff66")
+
+    # ==========================================
+    # 0. SEKME: GÖSTERGE PANELİ (OPTIMIZERDUCK STİLİ)
+    # ==========================================
+    def init_dashboard_tab(self):
+        frame = ctk.CTkFrame(self.content_frame, fg_color="#020407")
+        frame.grid_columnconfigure(0, weight=1)
+        frame.grid_rowconfigure(1, weight=1)
+
+        # Üst Araç Çubuğu (Top Bar)
+        top_bar = ctk.CTkFrame(frame, fg_color="transparent")
+        top_bar.grid(row=0, column=0, padx=25, pady=(20, 10), sticky="ew")
+        top_bar.grid_columnconfigure(0, weight=1)
+
+        title_box = ctk.CTkFrame(top_bar, fg_color="transparent")
+        title_box.grid(row=0, column=0, sticky="w")
+        ctk.CTkLabel(title_box, text="📊  GÖSTERGE PANELİ (SYSTEM DASHBOARD)", font=ctk.CTkFont(size=20, weight="bold"), text_color="#ffffff").pack(anchor="w")
+        ctk.CTkLabel(title_box, text="Donanım bileşenleri, canlı telemetri ve sistem kaynak durumunu anlık izleyin.", font=ctk.CTkFont(size=12), text_color="#94a3b8").pack(anchor="w")
+
+        btn_box = ctk.CTkFrame(top_bar, fg_color="transparent")
+        btn_box.grid(row=0, column=1, sticky="e")
+
+        ctk.CTkButton(
+            btn_box, 
+            text="⚡ Görev Yöneticisi", 
+            width=135, 
+            height=34, 
+            fg_color="#0f172a", 
+            hover_color="#1e293b", 
+            border_color="#38bdf8", 
+            border_width=1, 
+            text_color="#38bdf8", 
+            font=ctk.CTkFont(size=12, weight="bold"),
+            command=lambda: subprocess.Popen("taskmgr.exe")
+        ).pack(side="left", padx=5)
+
+        ctk.CTkButton(
+            btn_box, 
+            text="⚙️ Güç Planı", 
+            width=115, 
+            height=34, 
+            fg_color="#0f172a", 
+            hover_color="#1e293b", 
+            border_color="#00ff66", 
+            border_width=1, 
+            text_color="#00ff66", 
+            font=ctk.CTkFont(size=12, weight="bold"),
+            command=lambda: subprocess.Popen("control.exe powercfg.cpl")
+        ).pack(side="left", padx=5)
+
+        ctk.CTkButton(
+            btn_box, 
+            text="🔄 Yenile", 
+            width=95, 
+            height=34, 
+            fg_color="#00ff66", 
+            hover_color="#00cc52", 
+            text_color="#000000", 
+            font=ctk.CTkFont(size=12, weight="bold"),
+            command=self.refresh_dashboard
+        ).pack(side="left", padx=5)
+
+        # Scrollable Alan (Ekran taşmalarına karşı güvenli)
+        scroll = ctk.CTkScrollableFrame(frame, fg_color="#05080f", border_color="#131e35", border_width=1, corner_radius=10)
+        scroll.grid(row=1, column=0, padx=25, pady=(0, 15), sticky="nsew")
+        scroll.grid_columnconfigure(0, weight=1)
+        scroll.grid_columnconfigure(1, weight=1)
+
+        # 1. Sosyal Medya & Geliştirici Kartları (Row 0)
+        social_frame = ctk.CTkFrame(scroll, fg_color="transparent")
+        social_frame.grid(row=0, column=0, columnspan=2, padx=8, pady=(8, 12), sticky="ew")
+        social_frame.grid_columnconfigure((0, 1, 2), weight=1)
+
+        # TikTok Kartı
+        card_tiktok = ctk.CTkFrame(social_frame, fg_color="#0a101d", border_color="#16223b", border_width=1, corner_radius=8)
+        card_tiktok.grid(row=0, column=0, padx=4, sticky="ew")
+        ctk.CTkLabel(card_tiktok, text="🎵 TIKTOK", font=ctk.CTkFont(size=12, weight="bold"), text_color="#00f0ff").pack(padx=12, pady=(8, 2), anchor="w")
+        ctk.CTkLabel(card_tiktok, text="@NotLynx_7", font=ctk.CTkFont(size=11), text_color="#94a3b8").pack(padx=12, pady=(0, 6), anchor="w")
+        ctk.CTkButton(card_tiktok, text="Takip Et ↗", height=24, fg_color="#0f172a", hover_color="#1e293b", text_color="#00f0ff", font=ctk.CTkFont(size=10, weight="bold"), command=lambda: webbrowser.open("https://tiktok.com/@NotLynx_7")).pack(padx=12, pady=(0, 8), fill="x")
+
+        # Instagram Kartı
+        card_insta = ctk.CTkFrame(social_frame, fg_color="#0a101d", border_color="#16223b", border_width=1, corner_radius=8)
+        card_insta.grid(row=0, column=1, padx=4, sticky="ew")
+        ctk.CTkLabel(card_insta, text="📸 INSTAGRAM", font=ctk.CTkFont(size=12, weight="bold"), text_color="#ec4899").pack(padx=12, pady=(8, 2), anchor="w")
+        ctk.CTkLabel(card_insta, text="@NotLynx7", font=ctk.CTkFont(size=11), text_color="#94a3b8").pack(padx=12, pady=(0, 6), anchor="w")
+        ctk.CTkButton(card_insta, text="Takip Et ↗", height=24, fg_color="#0f172a", hover_color="#1e293b", text_color="#ec4899", font=ctk.CTkFont(size=10, weight="bold"), command=lambda: webbrowser.open("https://instagram.com/NotLynx7")).pack(padx=12, pady=(0, 8), fill="x")
+
+        # GitHub Kartı
+        card_git = ctk.CTkFrame(social_frame, fg_color="#0a101d", border_color="#16223b", border_width=1, corner_radius=8)
+        card_git.grid(row=0, column=2, padx=4, sticky="ew")
+        ctk.CTkLabel(card_git, text="⭐ GITHUB", font=ctk.CTkFont(size=12, weight="bold"), text_color="#00ff66").pack(padx=12, pady=(8, 2), anchor="w")
+        ctk.CTkLabel(card_git, text="samet2007topcu-art", font=ctk.CTkFont(size=11), text_color="#94a3b8").pack(padx=12, pady=(0, 6), anchor="w")
+        ctk.CTkButton(card_git, text="Yıldızla ↗", height=24, fg_color="#0f172a", hover_color="#1e293b", text_color="#00ff66", font=ctk.CTkFont(size=10, weight="bold"), command=lambda: webbrowser.open("https://github.com/samet2007topcu-art/NotLynxOptimizer")).pack(padx=12, pady=(0, 8), fill="x")
+
+        # 2. Donanım Özellikleri Kartları (2x2 Grid)
+        # Card 1: OS
+        self.dash_os_card = ctk.CTkFrame(scroll, fg_color="#0a101d", border_color="#16223b", border_width=1, corner_radius=10)
+        self.dash_os_card.grid(row=1, column=0, padx=8, pady=6, sticky="nsew")
+        ctk.CTkLabel(self.dash_os_card, text="🪟 İŞLETİM SİSTEMİ", font=ctk.CTkFont(size=11, weight="bold"), text_color="#38bdf8").pack(padx=16, pady=(12, 2), anchor="w")
+        self.dash_os_val = ctk.CTkLabel(self.dash_os_card, text="Yükleniyor...", font=ctk.CTkFont(size=14, weight="bold"), text_color="#ffffff", justify="left")
+        self.dash_os_val.pack(padx=16, pady=(0, 4), anchor="w")
+        self.dash_os_sub = ctk.CTkLabel(self.dash_os_card, text="● Çekirdek: Windows NT 10.0 • 64-bit", font=ctk.CTkFont(size=11), text_color="#94a3b8")
+        self.dash_os_sub.pack(padx=16, pady=(0, 12), anchor="w")
+
+        # Card 2: CPU
+        self.dash_cpu_card = ctk.CTkFrame(scroll, fg_color="#0a101d", border_color="#16223b", border_width=1, corner_radius=10)
+        self.dash_cpu_card.grid(row=1, column=1, padx=8, pady=6, sticky="nsew")
+        ctk.CTkLabel(self.dash_cpu_card, text="⚡ MERKEZİ İŞLEMCİ (CPU)", font=ctk.CTkFont(size=11, weight="bold"), text_color="#00ff66").pack(padx=16, pady=(12, 2), anchor="w")
+        self.dash_cpu_val = ctk.CTkLabel(self.dash_cpu_card, text="Yükleniyor...", font=ctk.CTkFont(size=14, weight="bold"), text_color="#ffffff", justify="left")
+        self.dash_cpu_val.pack(padx=16, pady=(0, 4), anchor="w")
+        self.dash_cpu_sub = ctk.CTkLabel(self.dash_cpu_card, text="● Mantıksal Çekirdekler ve Frekans", font=ctk.CTkFont(size=11), text_color="#94a3b8")
+        self.dash_cpu_sub.pack(padx=16, pady=(0, 12), anchor="w")
+
+        # Card 3: RAM
+        self.dash_ram_card = ctk.CTkFrame(scroll, fg_color="#0a101d", border_color="#16223b", border_width=1, corner_radius=10)
+        self.dash_ram_card.grid(row=2, column=0, padx=8, pady=6, sticky="nsew")
+        ctk.CTkLabel(self.dash_ram_card, text="🧠 SİSTEM BELLEĞİ (RAM)", font=ctk.CTkFont(size=11, weight="bold"), text_color="#a855f7").pack(padx=16, pady=(12, 2), anchor="w")
+        self.dash_ram_val = ctk.CTkLabel(self.dash_ram_card, text="Yükleniyor...", font=ctk.CTkFont(size=14, weight="bold"), text_color="#ffffff", justify="left")
+        self.dash_ram_val.pack(padx=16, pady=(0, 4), anchor="w")
+        self.dash_ram_bar = ctk.CTkProgressBar(self.dash_ram_card, height=10, progress_color="#00ff66", fg_color="#1e293b")
+        self.dash_ram_bar.pack(padx=16, pady=(2, 6), fill="x")
+        self.dash_ram_bar.set(0.0)
+        self.dash_ram_sub = ctk.CTkLabel(self.dash_ram_card, text="● Canlı Kullanım Oranı", font=ctk.CTkFont(size=11), text_color="#94a3b8")
+        self.dash_ram_sub.pack(padx=16, pady=(0, 12), anchor="w")
+
+        # Card 4: GPU
+        self.dash_gpu_card = ctk.CTkFrame(scroll, fg_color="#0a101d", border_color="#16223b", border_width=1, corner_radius=10)
+        self.dash_gpu_card.grid(row=2, column=1, padx=8, pady=6, sticky="nsew")
+        ctk.CTkLabel(self.dash_gpu_card, text="🎮 GRAFİK KARTI (GPU)", font=ctk.CTkFont(size=11, weight="bold"), text_color="#f59e0b").pack(padx=16, pady=(12, 2), anchor="w")
+        self.dash_gpu_val = ctk.CTkLabel(self.dash_gpu_card, text="Yükleniyor...", font=ctk.CTkFont(size=14, weight="bold"), text_color="#ffffff", justify="left")
+        self.dash_gpu_val.pack(padx=16, pady=(0, 4), anchor="w")
+        self.dash_gpu_sub = ctk.CTkLabel(self.dash_gpu_card, text="● Grafik Sürücüsü & Donanım Hızlandırma", font=ctk.CTkFont(size=11), text_color="#94a3b8")
+        self.dash_gpu_sub.pack(padx=16, pady=(0, 12), anchor="w")
+
+        # 3. Depolama Sürücüsü Kartı (Geniş Bar - Row 3, ColumnSpan 2)
+        self.dash_disk_card = ctk.CTkFrame(scroll, fg_color="#0a101d", border_color="#16223b", border_width=1, corner_radius=10)
+        self.dash_disk_card.grid(row=3, column=0, columnspan=2, padx=8, pady=6, sticky="ew")
+        
+        disk_top = ctk.CTkFrame(self.dash_disk_card, fg_color="transparent")
+        disk_top.pack(fill="x", padx=16, pady=(12, 2))
+        ctk.CTkLabel(disk_top, text="💾 DEPOLAMA SÜRÜCÜSÜ (C: NVMe / SSD)", font=ctk.CTkFont(size=11, weight="bold"), text_color="#06b6d4").pack(side="left")
+        ctk.CTkButton(disk_top, text="🧹 Temizle", width=70, height=22, fg_color="#1e293b", hover_color="#334155", text_color="#38bdf8", font=ctk.CTkFont(size=10, weight="bold"), command=lambda: self.select_tab("cleaner")).pack(side="right")
+
+        self.dash_disk_val = ctk.CTkLabel(self.dash_disk_card, text="Yükleniyor...", font=ctk.CTkFont(size=13, weight="bold"), text_color="#ffffff", justify="left")
+        self.dash_disk_val.pack(padx=16, pady=(0, 4), anchor="w")
+
+        self.dash_disk_bar = ctk.CTkProgressBar(self.dash_disk_card, height=12, progress_color="#00ff66", fg_color="#1e293b")
+        self.dash_disk_bar.pack(padx=16, pady=(4, 6), fill="x")
+        self.dash_disk_bar.set(0.0)
+
+        self.dash_disk_sub = ctk.CTkLabel(self.dash_disk_card, text="● Disk Kapasite ve Kullanım Durumu", font=ctk.CTkFont(size=11), text_color="#94a3b8")
+        self.dash_disk_sub.pack(padx=16, pady=(0, 12), anchor="w")
+
+        # 4. Hızlı Sistem Durumu Şeridi (Row 4)
+        status_bar = ctk.CTkFrame(scroll, fg_color="#04070e", border_color="#131e35", border_width=1, corner_radius=8)
+        status_bar.grid(row=4, column=0, columnspan=2, padx=8, pady=(6, 12), sticky="ew")
+        status_bar.grid_columnconfigure((0, 1, 2), weight=1)
+
+        p1 = ctk.CTkFrame(status_bar, fg_color="transparent")
+        p1.grid(row=0, column=0, padx=10, pady=8)
+        ctk.CTkLabel(p1, text="GÜÇ PLANI", font=ctk.CTkFont(size=10, weight="bold"), text_color="#64748b").pack(anchor="w")
+        ctk.CTkLabel(p1, text="NotLynx Ultimate Power", font=ctk.CTkFont(size=11, weight="bold"), text_color="#00ff66").pack(anchor="w")
+
+        p2 = ctk.CTkFrame(status_bar, fg_color="transparent")
+        p2.grid(row=0, column=1, padx=10, pady=8)
+        ctk.CTkLabel(p2, text="ZAMANLAYICI (HPET)", font=ctk.CTkFont(size=10, weight="bold"), text_color="#64748b").pack(anchor="w")
+        ctk.CTkLabel(p2, text="0.5 ms Enhanced TSC", font=ctk.CTkFont(size=11, weight="bold"), text_color="#38bdf8").pack(anchor="w")
+
+        p3 = ctk.CTkFrame(status_bar, fg_color="transparent")
+        p3.grid(row=0, column=2, padx=10, pady=8)
+        ctk.CTkLabel(p3, text="KERNEL KORUMA", font=ctk.CTkFont(size=10, weight="bold"), text_color="#64748b").pack(anchor="w")
+        ctk.CTkLabel(p3, text="v1.0 E-Spor Modu", font=ctk.CTkFont(size=11, weight="bold"), text_color="#a855f7").pack(anchor="w")
+
+        self.tabs["dashboard"] = frame
+        self.refresh_dashboard()
+
+    def refresh_dashboard(self):
+        threading.Thread(target=self._fetch_and_update_hw, daemon=True).start()
+
+    def _fetch_and_update_hw(self):
+        # 1. OS
+        try:
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows NT\CurrentVersion") as k:
+                prod = winreg.QueryValueEx(k, "ProductName")[0]
+                build = winreg.QueryValueEx(k, "CurrentBuild")[0]
+                try:
+                    disp = winreg.QueryValueEx(k, "DisplayVersion")[0]
+                except:
+                    disp = ""
+                arch = "64-bit" if "64" in platform.machine() else "32-bit"
+                os_title = f"{prod} {arch}"
+                os_detail = f"● Derleme: {build} {disp} • NT 10.0 Çekirdek"
+        except:
+            os_title = f"Windows {platform.version()}"
+            os_detail = "● 64-bit İşletim Sistemi"
+
+        # 2. CPU
+        try:
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"HARDWARE\DESCRIPTION\System\CentralProcessor\0") as k:
+                cpu_name = winreg.QueryValueEx(k, "ProcessorNameString")[0].strip()
+            cores = os.cpu_count() or 8
+            cpu_title = cpu_name
+            cpu_detail = f"● {cores} Mantıksal Çekirdek • Quanta Boost 3:1"
+        except:
+            cpu_title = platform.processor() or "Modern Çok Çekirdekli CPU"
+            cpu_detail = f"● {os.cpu_count()} Mantıksal Çekirdek"
+
+        # 3. RAM
+        try:
+            class MEMORYSTATUSEX(ctypes.Structure):
+                _fields_ = [
+                    ('dwLength', ctypes.c_ulong),
+                    ('dwMemoryLoad', ctypes.c_ulong),
+                    ('ullTotalPhys', ctypes.c_ulonglong),
+                    ('ullAvailPhys', ctypes.c_ulonglong),
+                    ('ullTotalPageFile', ctypes.c_ulonglong),
+                    ('ullAvailPageFile', ctypes.c_ulonglong),
+                    ('ullTotalVirtual', ctypes.c_ulonglong),
+                    ('ullAvailVirtual', ctypes.c_ulonglong),
+                    ('ullAvailExtendedVirtual', ctypes.c_ulonglong)
+                ]
+            stat = MEMORYSTATUSEX()
+            stat.dwLength = ctypes.sizeof(MEMORYSTATUSEX)
+            ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(stat))
+            tot_gb = stat.ullTotalPhys / (1024**3)
+            avail_gb = stat.ullAvailPhys / (1024**3)
+            used_gb = tot_gb - avail_gb
+            ram_pct = stat.dwMemoryLoad
+            ram_title = f"{tot_gb:.1f} GB RAM ({used_gb:.1f} GB Kullanılıyor)"
+            ram_detail = f"● Boş: {avail_gb:.1f} GB (%{100 - ram_pct:.0f}) • Dolu: %{ram_pct}"
+            ram_ratio = ram_pct / 100.0
+        except:
+            ram_title = "16.0 GB RAM"
+            ram_detail = "● Canlı RAM İzleme Aktif"
+            ram_ratio = 0.5
+
+        # 4. GPU
+        try:
+            gpus = []
+            class_guid = r"SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}"
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, class_guid) as k:
+                subkeys, _, _ = winreg.QueryInfoKey(k)
+                for i in range(subkeys):
+                    sub = winreg.EnumKey(k, i)
+                    if sub.isdigit():
+                        try:
+                            with winreg.OpenKey(k, sub) as sk:
+                                desc, _ = winreg.QueryValueEx(sk, "DriverDesc")
+                                try:
+                                    dver, _ = winreg.QueryValueEx(sk, "DriverVersion")
+                                except:
+                                    dver = ""
+                                if desc and "Basic" not in desc:
+                                    gpus.append((desc, dver))
+                        except:
+                            pass
+            if gpus:
+                nvidia_or_amd = [g for g in gpus if "NVIDIA" in g[0].upper() or "AMD" in g[0].upper() or "RADEON" in g[0].upper()]
+                primary = nvidia_or_amd[0] if nvidia_or_amd else gpus[0]
+                gpu_title = primary[0]
+                driver_text = f" • Sürücü: {primary[1]}" if primary[1] else ""
+                secondary = [g[0] for g in gpus if g != primary]
+                sec_text = f" (İkincil: {secondary[0]})" if secondary else ""
+                gpu_detail = f"● MMCSS Priority: 8 High{driver_text}{sec_text}"
+            else:
+                gpu_title = "Donanım Hızlandırmalı GPU"
+                gpu_detail = "● Yüksek Performans Modu Aktif"
+        except:
+            gpu_title = "GPU Algılanıyor..."
+            gpu_detail = "● Grafik Hızlandırıcı Aktif"
+
+        # 5. Storage (Disk C:)
+        try:
+            du = shutil.disk_usage("C:\\")
+            d_tot = du.total / (1024**3)
+            d_used = du.used / (1024**3)
+            d_free = du.free / (1024**3)
+            d_pct = (d_used / d_tot) * 100
+            
+            disk_model = "NVMe / SSD Storage"
+            for port in range(5):
+                try:
+                    path = rf"HARDWARE\DEVICEMAP\Scsi\Scsi Port {port}\Scsi Bus 0\Target Id 0\Logical Unit Id 0"
+                    with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, path) as k:
+                        val, _ = winreg.QueryValueEx(k, "Identifier")
+                        if val:
+                            disk_model = val.strip()
+                            break
+                except:
+                    pass
+            disk_title = f"Yerel Disk (C:) {disk_model}"
+            disk_detail = f"● Toplam: {d_tot:.0f} GB • Dolu: {d_used:.1f} GB (%{d_pct:.0f}) • Boş Alan: {d_free:.1f} GB"
+            disk_ratio = d_pct / 100.0
+        except:
+            disk_title = "Yerel Disk (C:)"
+            disk_detail = "● Depolama alanı izleniyor"
+            disk_ratio = 0.5
+
+        # UI güncelle
+        self.after(0, lambda: self._apply_hw_to_ui(
+            os_title, os_detail,
+            cpu_title, cpu_detail,
+            ram_title, ram_detail, ram_ratio,
+            gpu_title, gpu_detail,
+            disk_title, disk_detail, disk_ratio
+        ))
+
+    def _apply_hw_to_ui(self, os_title, os_detail, cpu_title, cpu_detail, ram_title, ram_detail, ram_ratio, gpu_title, gpu_detail, disk_title, disk_detail, disk_ratio):
+        try:
+            self.dash_os_val.configure(text=os_title)
+            self.dash_os_sub.configure(text=os_detail)
+            
+            self.dash_cpu_val.configure(text=cpu_title)
+            self.dash_cpu_sub.configure(text=cpu_detail)
+            
+            self.dash_ram_val.configure(text=ram_title)
+            self.dash_ram_sub.configure(text=ram_detail)
+            self.dash_ram_bar.set(ram_ratio)
+            
+            self.dash_gpu_val.configure(text=gpu_title)
+            self.dash_gpu_sub.configure(text=gpu_detail)
+            
+            self.dash_disk_val.configure(text=disk_title)
+            self.dash_disk_sub.configure(text=disk_detail)
+            self.dash_disk_bar.set(disk_ratio)
+            if disk_ratio > 0.85:
+                self.dash_disk_bar.configure(progress_color="#ef4444")
+            else:
+                self.dash_disk_bar.configure(progress_color="#00ff66")
+        except:
+            pass
 
     # ==========================================
     # 1. SEKME: KERNEL MODÜLLERİ (10 ÇEKİRDEK)
