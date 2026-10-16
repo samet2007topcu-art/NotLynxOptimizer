@@ -149,6 +149,18 @@ KERNEL_MODULES = [
     }
 ]
 
+def get_resource_path(relative_path):
+    """ PyInstaller tek dosya (.exe) veya normal Python calisma dizinini dinamik cozer """
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        bundle_path = os.path.join(sys._MEIPASS, relative_path)
+        if os.path.exists(bundle_path):
+            return bundle_path
+    for base in [os.path.dirname(os.path.abspath(__file__)), os.getcwd(), "NotlynxOptimizer", ".."]:
+        p = os.path.join(base, relative_path)
+        if os.path.exists(p):
+            return p
+    return relative_path
+
 class NotLynxOptimizerApp(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -236,22 +248,18 @@ class NotLynxOptimizerApp(ctk.CTk):
         self.after(1000, self.update_telemetry_loop)
 
     def load_icon(self):
-        for p in ["app.ico", "NotlynxOptimizer/app.ico", "../app.ico"]:
-            if os.path.exists(p):
-                try:
-                    self.iconbitmap(p)
-                    break
-                except:
-                    pass
+        icon_path = get_resource_path("app.ico")
+        if os.path.exists(icon_path):
+            try:
+                self.iconbitmap(icon_path)
+            except:
+                pass
 
     def init_sidebar_logo(self):
         logo_container = ctk.CTkFrame(self.sidebar_frame, fg_color="transparent")
         logo_container.grid(row=0, column=0, padx=16, pady=(15, 8))
 
-        logo_path = "logo.png"
-        if not os.path.exists(logo_path):
-            logo_path = "NotlynxOptimizer/logo.png"
-
+        logo_path = get_resource_path("logo.png")
         if os.path.exists(logo_path):
             try:
                 pil_img = Image.open(logo_path)
@@ -1028,6 +1036,19 @@ class NotLynxOptimizerApp(ctk.CTk):
             pass
         return count
 
+    def revert_tcp_nodelay(self):
+        try:
+            base_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces")
+            for i in range(winreg.QueryInfoKey(base_key)[0]):
+                subkey = winreg.EnumKey(base_key, i)
+                p = f"HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\{subkey}"
+                self.run_cmd(f'reg delete "{p}" /v TcpAckFrequency /f')
+                self.run_cmd(f'reg delete "{p}" /v TCPNoDelay /f')
+                self.run_cmd(f'reg delete "{p}" /v TcpDelAckTicks /f')
+            winreg.CloseKey(base_key)
+        except:
+            pass
+
     def apply_notlynx_power_plan(self):
         guid = "b31c5a11-6f4d-4f75-a7d5-9fcda7e1836e"
         self.run_cmd(f"powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 {guid}")
@@ -1243,12 +1264,29 @@ class NotLynxOptimizerApp(ctk.CTk):
 
     def worker_revert_all(self):
         self.shield_log.insert("end", "\n[*] TÜM OPTİMİZASYONLAR STANDART WINDOWS AYARLARINA DÖNDÜRÜLÜYOR...\n")
+        # 1. Standart Kernel Değerleri
         for mod in KERNEL_MODULES:
             for c_str in mod.get("revert", []):
                 self.run_cmd(c_str)
+        # 2. TCP No Delay Ayarlarını Geri Alma
+        self.revert_tcp_nodelay()
+        # 3. Kısayol Oklarını Geri Yükleme
         self.restore_shortcut_arrow()
+        # 4. Standart Dengeli Güç Planı (Balanced)
         self.run_cmd("powercfg -setactive 381b4222-f694-41f0-9685-ff5bb260df2e")
-        self.shield_log.insert("end", "[SUCCESS] Tüm ayarlar varsayılana döndürüldü.\n")
+        # 5. Temel Windows Servislerini Geri Açma
+        services_to_restore = [
+            ("Spooler", "auto"),
+            ("DiagTrack", "auto"),
+            ("SysMain", "auto"),
+            ("WSearch", "delayed-auto"),
+            ("PcaSvc", "auto"),
+            ("WerSvc", "demand")
+        ]
+        for s, mode in services_to_restore:
+            self.run_cmd(f"sc config {s} start= {mode}")
+            self.run_cmd(f"sc start {s}")
+        self.shield_log.insert("end", "[SUCCESS] Tüm ayarlar ve servisler fabrika varsayılanına döndürüldü.\n")
         ctypes.windll.user32.MessageBoxW(0, "Tüm sistem ayarları başarıyla varsayılan Windows fabrika ayarlarına döndürüldü.", "NotLynx", 0)
 
 if __name__ == "__main__":
