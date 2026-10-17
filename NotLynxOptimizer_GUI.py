@@ -151,10 +151,19 @@ KERNEL_MODULES = [
 
 def get_resource_path(relative_path):
     """ PyInstaller tek dosya (.exe) veya normal Python calisma dizinini dinamik cozer """
-    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
-        bundle_path = os.path.join(sys._MEIPASS, relative_path)
-        if os.path.exists(bundle_path):
-            return bundle_path
+    # Frozen (PyInstaller .exe) modunda: once bundle icinde ara, sonra exe klasorunde ara
+    if getattr(sys, 'frozen', False):
+        search_bases = []
+        if hasattr(sys, '_MEIPASS'):
+            search_bases.append(sys._MEIPASS)
+        # .exe'nin bulundugu klasore de bak (double-click ile acilinca)
+        exe_dir = os.path.dirname(sys.executable)
+        search_bases.append(exe_dir)
+        for base in search_bases:
+            p = os.path.join(base, relative_path)
+            if os.path.exists(p):
+                return p
+    # Normal Python script modunda
     for base in [os.path.dirname(os.path.abspath(__file__)), os.getcwd(), "NotlynxOptimizer", ".."]:
         p = os.path.join(base, relative_path)
         if os.path.exists(p):
@@ -1290,5 +1299,11 @@ class NotLynxOptimizerApp(ctk.CTk):
         ctypes.windll.user32.MessageBoxW(0, "Tüm sistem ayarları başarıyla varsayılan Windows fabrika ayarlarına döndürüldü.", "NotLynx", 0)
 
 if __name__ == "__main__":
+    # === PyInstaller Çift Tıklama Fix ===
+    # .exe olarak calisirken calisma dizinini .exe'nin bulundugu klasore set et
+    if getattr(sys, 'frozen', False):
+        exe_folder = os.path.dirname(sys.executable)
+        os.chdir(exe_folder)
+
     app = NotLynxOptimizerApp()
     app.mainloop()
