@@ -9,7 +9,8 @@
     <meta name="copyright" content="© 2026 NotLynx Team. All Rights Reserved. Protected by Anti-Theft Shield.">
 
     <!-- Sekme Logosu (Apple-Style Horned Lynx Favicon) -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect x='30' y='30' width='452' height='452' rx='110' fill='%23090d14' stroke='%2300ff66' stroke-width='16'/><path d='M256 180 L196 165 L100 120 L116 75 L61 160 L66 240 L126 275 L91 320 L186 370 L256 410 L326 370 L421 320 L386 275 L446 240 L451 160 L396 75 L412 120 L316 165 Z' fill='%230e1621' stroke='%2300ff66' stroke-width='14'/><path d='M116 75 L146 150 L186 210 M396 75 L366 150 L326 210' stroke='%2300f0ff' stroke-width='10' stroke-linecap='round'/><polygon points='256,200 218,245 256,290 294,245' fill='rgba(0,255,102,0.3)' stroke='%2300ff66' stroke-width='6'/><polygon points='151,255 211,270 176,285' fill='%2300ff66' stroke='%23fff' stroke-width='4'/><polygon points='361,255 301,270 336,285' fill='%2300ff66' stroke='%23fff' stroke-width='4'/></svg>">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -108,51 +109,63 @@
             pointer-events: auto;
         }
 
+        /* NOTLYNX-SITE-FIXES-v1 */
         /* ============================================
            SİBER NEONYEŞİL SCROLLBAR (Tüm site)
+           Chrome/Edge/Safari: ::-webkit-scrollbar (parlama + degrade)
+           Firefox: standart scrollbar-color (yalnızca webkit desteklemeyen tarayıcıda)
+           NOT: Chrome 121+, bir öğeye scrollbar-width/scrollbar-color verilirse
+           ::-webkit-scrollbar kurallarını yok sayar. Bu yüzden standart özellikler
+           yalnızca @supports not ile Firefox'a verilir.
            ============================================ */
-        * {
-            scrollbar-width: thin;
-            scrollbar-color: #00ff66 #04070e;
+        @supports not selector(::-webkit-scrollbar) {
+            * {
+                scrollbar-width: thin;
+                scrollbar-color: #00ff66 #04070e;
+            }
+            #terminal-content-wrap {
+                scrollbar-width: auto;
+                scrollbar-color: #00ff66 #020407;
+            }
         }
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #04070e;
-            border-radius: 3px;
-        }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #04070e; }
         ::-webkit-scrollbar-thumb {
-            background: #00ff66;
-            border-radius: 3px;
+            background: linear-gradient(180deg, #00ff66, #00b84a);
+            border-radius: 4px;
+            border: 1px solid rgba(0, 255, 102, 0.35);
             box-shadow: 0 0 8px rgba(0, 255, 102, 0.55);
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #00cc52;
-            box-shadow: 0 0 14px rgba(0, 255, 102, 0.8);
+            background: linear-gradient(180deg, #5dffa0, #00ff66);
+            box-shadow: 0 0 14px rgba(0, 255, 102, 0.85);
         }
-        ::-webkit-scrollbar-corner {
-            background: #04070e;
-        }
+        ::-webkit-scrollbar-corner { background: #04070e; }
 
-        /* Terminal özel scrollbar — daha belirgin */
-        #terminal-content-wrap {
-            scrollbar-width: thin;
-            scrollbar-color: #00ff66 #020407;
-        }
-        #terminal-content-wrap::-webkit-scrollbar {
-            width: 8px;
-        }
+        /* Simülasyon terminali: daha geniş, çerçeveli ve belirgin çubuk */
+        #terminal-content-wrap::-webkit-scrollbar { width: 12px; }
         #terminal-content-wrap::-webkit-scrollbar-track {
             background: #020407;
-            border-radius: 4px;
-            border: 1px solid rgba(0,255,102,0.15);
+            border-left: 1px solid rgba(0, 255, 102, 0.18);
         }
         #terminal-content-wrap::-webkit-scrollbar-thumb {
             background: linear-gradient(180deg, #00ff66, #00cc52);
-            border-radius: 4px;
+            background-clip: padding-box;
+            border-radius: 6px;
+            border: 2px solid #020407;
             box-shadow: 0 0 10px rgba(0, 255, 102, 0.6);
+        }
+        #terminal-content-wrap::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #7dffb3, #00ff66);
+            background-clip: padding-box;
+        }
+
+        /* Klavye odağı ve hareket azaltma (erişilebilirlik) */
+        #fps-toggle-btn:focus-visible { outline: 2px solid #00ff66; outline-offset: 3px; }
+        @media (prefers-reduced-motion: reduce) {
+            .animate-ping, .animate-pulse { animation: none !important; }
+            html { scroll-behavior: auto !important; }
         }
 
         /* ============================================
@@ -209,19 +222,9 @@
             <a href="#" class="flex items-center gap-3 group protected-brand relative">
                 <div class="h-12 w-12 relative flex items-center justify-center bg-gradient-to-b from-[#0e1626] to-[#060a12] rounded-xl border border-cyber-neon/60 group-hover:border-cyber-neon transition-all duration-300 box-neon-glow overflow-hidden p-1 shadow-[0_0_20px_rgba(0,255,102,0.3)]">
                     <!-- Apple-tier Horned Lynx Vector Emblem -->
-                    <svg class="w-full h-full text-cyber-neon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="25" y="25" width="462" height="462" rx="100" fill="#090d14" stroke="#00ff66" stroke-width="14"/>
-                        <path d="M256 180 L196 165 L100 120 L116 75 L61 160 L66 240 L126 275 L91 320 L186 370 L256 410 L326 370 L421 320 L386 275 L446 240 L451 160 L396 75 L412 120 L316 165 Z" fill="#0d141f" stroke="#00ff66" stroke-width="12" stroke-linejoin="round"/>
-                        <path d="M116 75 L146 150 L186 210" stroke="#00f0ff" stroke-width="8" stroke-linecap="round"/>
-                        <path d="M396 75 L366 150 L326 210" stroke="#00f0ff" stroke-width="8" stroke-linecap="round"/>
-                        <polygon points="256,200 218,245 256,290 294,245" fill="rgba(0,255,102,0.25)" stroke="#00ff66" stroke-width="6"/>
-                        <polygon points="151,255 211,270 176,285" fill="#00ff66" stroke="#ffffff" stroke-width="4"/>
-                        <polygon points="361,255 301,270 336,285" fill="#00ff66" stroke="#ffffff" stroke-width="4"/>
-                        <polygon points="232,335 280,335 256,360" fill="#00ff66" stroke="#00ff66" stroke-width="4"/>
-                        <line x1="256" y1="360" x2="256" y2="380" stroke="#00ff66" stroke-width="6"/>
-                    </svg>
+                    <img src="logo.png" alt="NotLynx logosu" draggable="false" class="w-full h-full text-cyber-neon">
                     <!-- Logo Koruma Katmanı -->
-                    <div class="absolute inset-0 bg-transparent cursor-pointer" oncontextmenu="preventCopy(event, 'Logo korumalıdır!')"></div>
+                    <div class="absolute inset-0 bg-transparent" oncontextmenu="preventCopy(event, 'Logo korumalıdır!')"></div>
                 </div>
                 <div>
                     <span class="font-bold text-lg sm:text-xl tracking-wider text-white block font-mono select-none">
@@ -263,7 +266,7 @@
                 </a>
 
                 <!-- Download Button -->
-                <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases" class="font-bold text-xs sm:text-sm tracking-wider px-4 sm:px-5 py-2.5 rounded-lg bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_20px_rgba(0,255,102,0.5)] hover:shadow-[0_0_30px_rgba(255,255,255,0.8)] flex items-center gap-2 font-mono flex-shrink-0">
+                <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases/latest/download/NotLynxOptimizer_GUI.exe" class="font-bold text-xs sm:text-sm tracking-wider px-4 sm:px-5 py-2.5 rounded-lg bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_20px_rgba(0,255,102,0.5)] hover:shadow-[0_0_30px_rgba(255,255,255,0.8)] flex items-center gap-2 font-mono flex-shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                     <span>v1.0 İNDİR</span>
                 </a>
@@ -296,7 +299,7 @@
                     </p>
 
                     <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-                        <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases/download/v1.0/NotLynxOptimizer_GUI.exe" class="w-full sm:w-auto font-bold text-sm sm:text-base tracking-wider px-8 py-4 rounded-xl bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_30px_rgba(0,255,102,0.6)] flex items-center justify-center gap-3 transform hover:-translate-y-1 font-mono">
+                        <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases/latest/download/NotLynxOptimizer_GUI.exe" class="w-full sm:w-auto font-bold text-sm sm:text-base tracking-wider px-8 py-4 rounded-xl bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_30px_rgba(0,255,102,0.6)] flex items-center justify-center gap-3 transform hover:-translate-y-1 font-mono">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                             <span>NOTLYNXOPTIMIZER.EXE (v1.0)</span>
                         </a>
@@ -312,8 +315,8 @@
                             <div class="text-[10px] sm:text-xs text-slate-400">KERNEL MODÜLÜ</div>
                         </div>
                         <div class="bg-cyber-card/60 p-3 rounded-lg border border-cyber-cardLight/70">
-                            <div class="font-bold text-xl sm:text-2xl text-cyber-neon text-neon-glow">+75 FPS</div>
-                            <div class="text-[10px] sm:text-xs text-slate-400">ORTALAMA ARTIŞ</div>
+                            <div class="font-bold text-xl sm:text-2xl text-cyber-neon text-neon-glow">+%74 FPS</div>
+                            <div class="text-[10px] sm:text-xs text-slate-400">ÖRNEK SENARYO</div>
                         </div>
                         <div class="bg-cyber-card/60 p-3 rounded-lg border border-cyber-cardLight/70">
                             <div class="font-bold text-xl sm:text-2xl text-cyber-cyan text-cyan-glow">0.5 ms</div>
@@ -341,7 +344,7 @@
 
                         <!-- Apple-Style Horned Lynx Mascot Emblem Container -->
                         <div class="text-center py-1 relative">
-                            <div class="w-32 h-32 mx-auto rounded-3xl bg-gradient-to-b from-[#0f1728] to-[#05080f] border-2 border-cyber-neon/80 flex items-center justify-center box-neon-glow mb-2 overflow-hidden p-2 shadow-[0_0_30px_rgba(0,255,102,0.45)] relative group cursor-pointer" title="NotLynx Horned Cyber Mascot v1.0">
+                            <div class="w-32 h-32 mx-auto rounded-3xl bg-gradient-to-b from-[#0f1728] to-[#05080f] border-2 border-cyber-neon/80 flex items-center justify-center box-neon-glow mb-2 overflow-hidden p-2 shadow-[0_0_30px_rgba(0,255,102,0.45)] relative group" title="NotLynx Horned Cyber Mascot v1.0">
                                 <img src="logo.png" alt="NotLynx Apple-Style Horned Lynx Emblem" class="w-full h-full object-contain rounded-2xl select-none" draggable="false" oncontextmenu="preventCopy(event, 'Logo korumalıdır!')"/>
                                 <!-- Görünmez Kalkan Katmanı (Sağ Tık / Sürükleme İmkansız) -->
                                 <div class="absolute inset-0 bg-transparent" oncontextmenu="preventCopy(event, 'NotLynx logosu telif hakkı koruması altındadır.')"></div>
@@ -392,7 +395,9 @@
                             </div>
                         </div>
 
-                        <!-- Durum Rozeti -->
+                        <p class="text-center text-[10px] font-mono text-slate-500 select-none">Örnek değerler (simülasyon) • gerçek sonuç donanıma göre değişir</p>
+
+<!-- Durum Rozeti -->
                         <div class="text-center font-mono text-xs text-cyber-neon flex items-center justify-center gap-2 pt-1 select-none">
                             <span class="w-2 h-2 rounded-full bg-cyber-neon animate-ping"></span>
                             <span id="status-footer-text">10 KERNEL MODÜLÜ DEVREDE (v1.0)</span>
@@ -533,7 +538,7 @@
             <div class="text-center mb-12 space-y-3">
                 <h2 class="text-xs font-mono tracking-widest text-cyber-neon uppercase text-neon-glow select-none">CANLI SİMÜLATÖR</h2>
                 <p class="text-3xl sm:text-4xl font-black text-white select-none">Canlı v1.0 Script Simülatörü</p>
-                <p class="text-slate-400">NotLynx Optimizer v1.0'ın arka planda çalıştırdığı 10 aşamalı çekirdek motorunu doğrudan tarayıcınızda test edin.</p>
+                <p class="text-slate-400">NotLynx Optimizer v1.0'ın 10 aşamalı çekirdek akışını tarayıcınızda canlandırır. Bu bir animasyondur; gerçek ayarlar yalnızca uygulamayı yönetici olarak çalıştırdığınızda uygulanır.</p>
             </div>
             
             <div class="cyber-interactive-card rounded-2xl p-6 space-y-6">
@@ -595,8 +600,8 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.030 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                     </div>
                     <h3 class="font-bold text-lg text-white font-mono">Güvenilirlik & UAC</h3>
-                    <p class="text-slate-400 text-sm">Kayıt defteri ve kernel ayarlarını değiştirebilmek için zorunlu olan Yönetici (UAC) yetkisi `runas-admin` bayrağı ile güvenli bir şekilde talep edilir. 0% zararlı yazılım temizliği.</p>
-                    <span class="inline-block text-xs font-mono text-cyber-neon pt-2">VirusTotal: Temiz (Verified)</span>
+                    <p class="text-slate-400 text-sm">Kayıt defteri ve kernel ayarlarını değiştirebilmek için zorunlu olan Yönetici (UAC) yetkisi `runas-admin` bayrağı ile güvenli bir şekilde talep edilir. İndirdiğiniz dosyayı VirusTotal'a yükleyerek kendiniz doğrulayabilirsiniz; kayıt defteri ve servis ayarlarını değiştiren araçlar bazı antivirüslerde yanlış alarm verebilir.</p>
+                    <a href="https://www.virustotal.com/gui/home/upload" target="_blank" rel="noopener noreferrer" class="inline-block text-xs font-mono text-cyber-neon hover:underline pt-2">VirusTotal ile kendin tara &rarr;</a>
                 </div>
 
                 <div class="cyber-interactive-card p-6 rounded-xl space-y-4">
@@ -642,7 +647,7 @@
                 <h3 class="text-2xl sm:text-3xl font-black text-white font-mono select-none">NOTLYNX OPTIMIZER v1.0 İLE SINIRLARI KALDIR!</h3>
                 <p class="text-slate-300 max-w-xl mx-auto text-sm">OptimizerDuck stili donanım gösterge paneli, 10 modüllü profesyonel kernel optimizasyonu ve derin artık temizleyici şimdi tek çatıda.</p>
                 <div>
-                    <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases/download/v1.0/NotLynxOptimizer_GUI.exe" class="inline-flex items-center gap-3 font-bold text-sm sm:text-base tracking-wider px-8 py-4 rounded-xl bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_30px_rgba(0,255,102,0.6)] font-mono">
+                    <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases/latest/download/NotLynxOptimizer_GUI.exe" class="inline-flex items-center gap-3 font-bold text-sm sm:text-base tracking-wider px-8 py-4 rounded-xl bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_30px_rgba(0,255,102,0.6)] font-mono">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                         <span>NotLynxOptimizer_GUI.exe İNDİR (v1.0)</span>
                     </a>

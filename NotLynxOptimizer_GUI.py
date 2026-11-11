@@ -9,6 +9,7 @@ import winreg
 import time
 import platform
 import webbrowser
+import notlynx_extras  # NOTLYNX-EXTRAS-v1
 from PIL import Image
 
 # --- GLOBAL TEMA VE ESTETİK AYARLAR ---
@@ -86,8 +87,10 @@ KERNEL_MODULES = [
             'reg add "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games" /v "SFIO Priority" /t REG_SZ /d "High" /f'
         ],
         "revert": [
+            'reg add "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games" /v "GPU Priority" /t REG_DWORD /d 2 /f',
             'reg add "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games" /v "Priority" /t REG_DWORD /d 2 /f',
-            'reg add "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games" /v "Scheduling Category" /t REG_SZ /d "Medium" /f'
+            'reg add "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games" /v "Scheduling Category" /t REG_SZ /d "Medium" /f',
+            'reg add "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games" /v "SFIO Priority" /t REG_SZ /d "Normal" /f'
         ]
     },
     {
@@ -170,6 +173,152 @@ def get_resource_path(relative_path):
             return p
     return relative_path
 
+# NOTLYNX-FIXES-v1 ---------------------------------------------------------------------
+import re as _re
+
+if sys.platform == "win32":
+    # Konsolsuz (windowed) exe'de alt süreçler siyah konsol penceresi açmasın.
+    _orig_popen_init = subprocess.Popen.__init__
+
+    def _popen_no_window(self, *args, **kwargs):
+        kwargs["creationflags"] = kwargs.get("creationflags", 0) | 0x08000000  # CREATE_NO_WINDOW
+        _orig_popen_init(self, *args, **kwargs)
+
+    subprocess.Popen.__init__ = _popen_no_window
+
+
+# Okunabilirlik teması: küçük yazıları büyüt, soluk gri tonları aç.
+NOTLYNX_THEME = True   # False yapılırsa arayüz eski yazı boyutlarına ve renklerine döner
+_FONT_SIZE_MAP = {9: 11, 10: 12, 11: 13, 12: 13, 13: 14}
+_LABEL_COLOR_MAP = {"#64748b": "#7a8aa3"}   # kontrast 4,1:1 -> 5,4:1 (WCAG AA için en az 4,5:1)
+
+if NOTLYNX_THEME:
+    try:
+        _orig_font_init = ctk.CTkFont.__init__
+
+        def _font_init(self, *args, **kwargs):
+            if kwargs.get("size") in _FONT_SIZE_MAP:
+                kwargs["size"] = _FONT_SIZE_MAP[kwargs["size"]]
+            _orig_font_init(self, *args, **kwargs)
+
+        ctk.CTkFont.__init__ = _font_init
+
+        _orig_label_init = ctk.CTkLabel.__init__
+
+        def _label_init(self, *args, **kwargs):
+            if kwargs.get("text_color") in _LABEL_COLOR_MAP:
+                kwargs["text_color"] = _LABEL_COLOR_MAP[kwargs["text_color"]]
+            _orig_label_init(self, *args, **kwargs)
+
+        ctk.CTkLabel.__init__ = _label_init
+    except Exception:
+        pass
+
+
+def _set_app_user_model_id(app_id="NotLynx.Optimizer.1"):
+    """Windows'a bu uygulamanın kendi kimliğini bildirir (görev çubuğu ikonu/gruplama)."""
+    try:
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(ctypes.c_wchar_p(app_id))
+    except Exception:
+        pass
+
+
+def _set_window_icon_win32(window, icon_path):
+    """app.ico'dan sistem ölçeğine uygun boyutta ikon yükleyip pencereye atar."""
+    try:
+        u32 = ctypes.WinDLL("user32")  # özel kopya: başka kodun ctypes ayarlarını bozmaz
+        u32.LoadImageW.restype = ctypes.c_void_p
+        u32.LoadImageW.argtypes = [ctypes.c_void_p, ctypes.c_wchar_p, ctypes.c_uint,
+                                   ctypes.c_int, ctypes.c_int, ctypes.c_uint]
+        u32.SendMessageW.restype = ctypes.c_void_p
+        u32.SendMessageW.argtypes = [ctypes.c_void_p, ctypes.c_uint, ctypes.c_void_p, ctypes.c_void_p]
+        u32.GetAncestor.restype = ctypes.c_void_p
+        u32.GetAncestor.argtypes = [ctypes.c_void_p, ctypes.c_uint]
+
+        child = window.winfo_id()
+        hwnd = u32.GetAncestor(child, 2) or child  # GA_ROOT = 2
+        small = u32.GetSystemMetrics(49) or 16   # SM_CXSMICON
+        big = u32.GetSystemMetrics(11) or 32     # SM_CXICON
+        IMAGE_ICON, LR_LOADFROMFILE = 1, 0x0010
+        WM_SETICON, ICON_SMALL, ICON_BIG = 0x0080, 0, 1
+        h_small = u32.LoadImageW(None, icon_path, IMAGE_ICON, small, small, LR_LOADFROMFILE)
+        h_big = u32.LoadImageW(None, icon_path, IMAGE_ICON, big, big, LR_LOADFROMFILE)
+        if h_small:
+            u32.SendMessageW(hwnd, WM_SETICON, ICON_SMALL, h_small)
+        if h_big:
+            u32.SendMessageW(hwnd, WM_SETICON, ICON_BIG, h_big)
+        window._icon_handles = (h_small, h_big)  # ikon tutamaçlarını canlı tut
+    except Exception:
+        pass
+
+
+def _count_processes():
+    """Çalışan işlem sayısı (PowerShell çağırmadan, ms içinde). Hata olursa 0 döner."""
+    try:
+        capacity = 4096
+        while capacity <= 65536:
+            arr = (ctypes.c_uint32 * capacity)()   # DWORD = 32 bit
+            needed = ctypes.c_uint32(0)
+            ok = ctypes.windll.psapi.EnumProcesses(ctypes.byref(arr), ctypes.sizeof(arr), ctypes.byref(needed))
+            if not ok:
+                return 0
+            if needed.value < ctypes.sizeof(arr):
+                return needed.value // 4
+            capacity *= 2
+    except Exception:
+        pass
+    return 0
+
+
+def _run_text(cmd, timeout=8):
+    """Komutu çalıştırıp çıktısını metin olarak döndürür (OEM kod sayfasıyla çözer)."""
+    try:
+        res = subprocess.run(cmd, capture_output=True, timeout=timeout)
+        raw = res.stdout or b""
+        try:
+            return raw.decode("cp%d" % ctypes.windll.kernel32.GetOEMCP(), errors="replace")
+        except Exception:
+            return raw.decode("utf-8", errors="replace")
+    except Exception:
+        return ""
+
+
+def _parse_active_scheme(text):
+    """`powercfg /getactivescheme` çıktısından plan adını alır (dil bağımsız: son parantez)."""
+    m = _re.search(r"\(([^()]+)\)\s*$", (text or "").strip())
+    return m.group(1).strip() if m else None
+
+
+def _parse_timer_state(text):
+    """`bcdedit /enum {current}` çıktısından zamanlayıcı ayarlarının kısa özetini üretir."""
+    if not text or not _re.search(r"^\s*identifier\s", text, _re.I | _re.M):
+        return "Okunamadı"
+
+    def value(key):
+        m = _re.search(r"^\s*" + key + r"\s+(\S+)", text, _re.I | _re.M)
+        return m.group(1).lower() if m else None
+
+    yes = ("yes", "evet", "true", "on")
+    clock = value("useplatformclock")
+    hpet_forced = clock in yes
+    tick_off = value("disabledynamictick") in yes
+    tsc_enh = value("tscsyncpolicy") == "enhanced"
+    if tick_off and tsc_enh and not hpet_forced:
+        return "Ayarlı (TSC Enhanced)"
+    if tick_off or tsc_enh or clock is not None:
+        return "Kısmen ayarlı"
+    return "Windows varsayılanı"
+
+
+def _read_active_power_plan():
+    return _parse_active_scheme(_run_text(["powercfg", "/getactivescheme"]))
+
+
+def _read_timer_state():
+    return _parse_timer_state(_run_text(["bcdedit", "/enum", "{current}"]))
+# NOTLYNX-FIXES-v1 END -----------------------------------------------------------------
+
+
 class NotLynxOptimizerApp(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -194,7 +343,7 @@ class NotLynxOptimizerApp(ctk.CTk):
         # ==========================================
         self.sidebar_frame = ctk.CTkFrame(self, width=280, corner_radius=0, fg_color="#040609")
         self.sidebar_frame.grid(row=0, column=0, sticky="nsew")
-        self.sidebar_frame.grid_rowconfigure(11, weight=1)
+        self.sidebar_frame.grid_rowconfigure(13, weight=1)
 
         # Logo Görseli
         self.init_sidebar_logo()
@@ -211,7 +360,9 @@ class NotLynxOptimizerApp(ctk.CTk):
             ("process", "📉  İşlem Düşürücü"),
             ("desktop", "🛠️  Masaüstü & Ayarlar"),
             ("cleaner", "🧹  Derin Temizleyici"),
-            ("shield", "🛡️  Kalkan & Kurtarma")
+            ("shield", "🛡️  Kalkan & Kurtarma"),
+            ("debloat", "🗑️ Gereksiz Uygulamalar"),
+            ("nvidia", "🎮 NVIDIA & GPU")
         ]
 
         for i, (key, label) in enumerate(nav_items):
@@ -250,6 +401,8 @@ class NotLynxOptimizerApp(ctk.CTk):
         self.init_desktop_tab()
         self.init_cleaner_tab()
         self.init_shield_tab()
+        self.tabs["debloat"] = notlynx_extras.DebloatPage(self.content_frame, host=self)
+        self.tabs["nvidia"] = notlynx_extras.NvidiaPage(self.content_frame, host=self)
 
         self.select_tab("dashboard")
 
@@ -257,12 +410,23 @@ class NotLynxOptimizerApp(ctk.CTk):
         self.after(1000, self.update_telemetry_loop)
 
     def load_icon(self):
+        """Pencere/görev çubuğu ikonu. CustomTkinter ~200 ms sonra kendi ikonunu basabildiği
+        için ikon hemen ve gecikmeli olarak (250 ms, 800 ms) yeniden uygulanır."""
         icon_path = get_resource_path("app.ico")
-        if os.path.exists(icon_path):
-            try:
-                self.iconbitmap(icon_path)
-            except:
-                pass
+        if not os.path.exists(icon_path):
+            return
+        _set_app_user_model_id()
+        self._icon_path = icon_path
+        self._apply_icon()
+        for delay in (250, 800):
+            self.after(delay, self._apply_icon)
+
+    def _apply_icon(self):
+        try:
+            self.wm_iconbitmap(self._icon_path)  # CustomTkinter'ın varsayılan ikonunu bastırır
+        except Exception:
+            pass
+        _set_window_icon_win32(self, self._icon_path)
 
     def init_sidebar_logo(self):
         logo_container = ctk.CTkFrame(self.sidebar_frame, fg_color="transparent")
@@ -312,28 +476,33 @@ class NotLynxOptimizerApp(ctk.CTk):
                 height=28,
                 corner_radius=6,
                 command=self.relaunch_as_admin
-            ).grid(row=10, column=0, padx=16, pady=(0, 10), sticky="ew")
+            ).grid(row=12, column=0, padx=16, pady=(0, 10), sticky="ew")
 
     def init_telemetry_panel(self):
         panel = ctk.CTkFrame(self.sidebar_frame, fg_color="#070b14", corner_radius=10, border_color="#131e35", border_width=1)
-        panel.grid(row=12, column=0, padx=16, pady=16, sticky="sew")
-
+        panel.grid(row=14, column=0, padx=16, pady=16, sticky="sew")
         ctk.CTkLabel(panel, text="CANLI TELEMETRİ", font=ctk.CTkFont(size=9, weight="bold"), text_color="#64748b").pack(padx=12, pady=(10, 2), anchor="w")
         self.lbl_process_count = ctk.CTkLabel(panel, text="● İŞLEMLER: Hesaplanıyor...", font=ctk.CTkFont(size=11, weight="bold"), text_color="#38bdf8")
         self.lbl_process_count.pack(padx=12, pady=(0, 2), anchor="w")
-        ctk.CTkLabel(panel, text="● LATENCY: ULTRA LOW", font=ctk.CTkFont(size=11, weight="bold"), text_color="#00ff66").pack(padx=12, pady=(0, 2), anchor="w")
-        ctk.CTkLabel(panel, text="● POWER: NOTLYNX ULTIMATE", font=ctk.CTkFont(size=10), text_color="#94a3b8").pack(padx=12, pady=(0, 10), anchor="w")
+        self.lbl_power_plan = ctk.CTkLabel(panel, text="● GÜÇ PLANI: okunuyor...", font=ctk.CTkFont(size=10), text_color="#94a3b8", wraplength=220)
+        self.lbl_power_plan.pack(padx=12, pady=(0, 10), anchor="w")
 
     def update_telemetry_loop(self):
-        try:
-            cmd = "powershell -Command '(Get-Process).Count'"
-            res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-            cnt = res.stdout.strip()
-            if cnt:
-                self.lbl_process_count.configure(text=f"● İŞLEMLER: {cnt} Aktif")
-        except:
-            pass
-        self.after(5000, self.update_telemetry_loop)
+        def worker():
+            cnt = _count_processes()
+
+            def apply():
+                try:
+                    if cnt:
+                        self.lbl_process_count.configure(text=f"● İŞLEMLER: {cnt} Aktif")
+                except Exception:
+                    pass
+            try:
+                self.after(0, apply)
+            except Exception:
+                pass
+        threading.Thread(target=worker, daemon=True).start()
+        self.after(3000, self.update_telemetry_loop)
 
     def is_admin(self):
         try:
@@ -355,8 +524,10 @@ class NotLynxOptimizerApp(ctk.CTk):
 
         if key in self.tabs:
             self.tabs[key].grid(row=0, column=0, sticky="nsew")
-            if key in self.nav_buttons:
-                self.nav_buttons[key].configure(fg_color="#131e35", text_color="#00ff66")
+            if hasattr(self.tabs[key], "on_show"):
+                self.tabs[key].on_show()
+        if key in self.nav_buttons:
+            self.nav_buttons[key].configure(fg_color="#131e35", text_color="#00ff66")
 
     # ==========================================
     # 0. SEKME: GÖSTERGE PANELİ (OPTIMIZERDUCK STİLİ)
@@ -518,12 +689,14 @@ class NotLynxOptimizerApp(ctk.CTk):
         p1 = ctk.CTkFrame(status_bar, fg_color="transparent")
         p1.grid(row=0, column=0, padx=10, pady=8)
         ctk.CTkLabel(p1, text="GÜÇ PLANI", font=ctk.CTkFont(size=10, weight="bold"), text_color="#64748b").pack(anchor="w")
-        ctk.CTkLabel(p1, text="NotLynx Ultimate Power", font=ctk.CTkFont(size=11, weight="bold"), text_color="#00ff66").pack(anchor="w")
+        self.dash_power_val = ctk.CTkLabel(p1, text="Okunuyor...", font=ctk.CTkFont(size=11, weight="bold"), text_color="#00ff66")
+        self.dash_power_val.pack(anchor="w")
 
         p2 = ctk.CTkFrame(status_bar, fg_color="transparent")
         p2.grid(row=0, column=1, padx=10, pady=8)
         ctk.CTkLabel(p2, text="ZAMANLAYICI (HPET)", font=ctk.CTkFont(size=10, weight="bold"), text_color="#64748b").pack(anchor="w")
-        ctk.CTkLabel(p2, text="0.5 ms Enhanced TSC", font=ctk.CTkFont(size=11, weight="bold"), text_color="#38bdf8").pack(anchor="w")
+        self.dash_timer_val = ctk.CTkLabel(p2, text="Okunuyor...", font=ctk.CTkFont(size=11, weight="bold"), text_color="#38bdf8")
+        self.dash_timer_val.pack(anchor="w")
 
         p3 = ctk.CTkFrame(status_bar, fg_color="transparent")
         p3.grid(row=0, column=2, padx=10, pady=8)
@@ -535,6 +708,23 @@ class NotLynxOptimizerApp(ctk.CTk):
 
     def refresh_dashboard(self):
         threading.Thread(target=self._fetch_and_update_hw, daemon=True).start()
+        threading.Thread(target=self._fetch_status_strip, daemon=True).start()
+
+    def _fetch_status_strip(self):
+        plan = _read_active_power_plan() or "Okunamadı"
+        timer = _read_timer_state()
+
+        def apply():
+            try:
+                self.lbl_power_plan.configure(text=f"● GÜÇ PLANI: {plan}")
+                self.dash_power_val.configure(text=plan)
+                self.dash_timer_val.configure(text=timer)
+            except Exception:
+                pass
+        try:
+            self.after(0, apply)
+        except Exception:
+            pass
 
     def _fetch_and_update_hw(self):
         # 1. OS
@@ -559,7 +749,7 @@ class NotLynxOptimizerApp(ctk.CTk):
                 cpu_name = winreg.QueryValueEx(k, "ProcessorNameString")[0].strip()
             cores = os.cpu_count() or 8
             cpu_title = cpu_name
-            cpu_detail = f"● {cores} Mantıksal Çekirdek • Quanta Boost 3:1"
+            cpu_detail = f"● {cores} Mantıksal Çekirdek"
         except:
             cpu_title = platform.processor() or "Modern Çok Çekirdekli CPU"
             cpu_detail = f"● {os.cpu_count()} Mantıksal Çekirdek"
@@ -620,13 +810,13 @@ class NotLynxOptimizerApp(ctk.CTk):
                 driver_text = f" • Sürücü: {primary[1]}" if primary[1] else ""
                 secondary = [g[0] for g in gpus if g != primary]
                 sec_text = f" (İkincil: {secondary[0]})" if secondary else ""
-                gpu_detail = f"● MMCSS Priority: 8 High{driver_text}{sec_text}"
+                gpu_detail = "● " + (driver_text.strip(" •") or "Grafik sürücüsü algılandı") + sec_text
             else:
                 gpu_title = "Donanım Hızlandırmalı GPU"
-                gpu_detail = "● Yüksek Performans Modu Aktif"
+                gpu_detail = "● Grafik sürücüsü algılandı"
         except:
             gpu_title = "GPU Algılanıyor..."
-            gpu_detail = "● Grafik Hızlandırıcı Aktif"
+            gpu_detail = "● Grafik sürücüsü okunamadı"
 
         # 5. Storage (Disk C:)
         try:
@@ -656,13 +846,16 @@ class NotLynxOptimizerApp(ctk.CTk):
             disk_ratio = 0.5
 
         # UI güncelle
-        self.after(0, lambda: self._apply_hw_to_ui(
-            os_title, os_detail,
-            cpu_title, cpu_detail,
-            ram_title, ram_detail, ram_ratio,
-            gpu_title, gpu_detail,
-            disk_title, disk_detail, disk_ratio
-        ))
+        try:
+            self.after(0, lambda: self._apply_hw_to_ui(
+                os_title, os_detail,
+                cpu_title, cpu_detail,
+                ram_title, ram_detail, ram_ratio,
+                gpu_title, gpu_detail,
+                disk_title, disk_detail, disk_ratio
+            ))
+        except Exception:
+            pass
 
     def _apply_hw_to_ui(self, os_title, os_detail, cpu_title, cpu_detail, ram_title, ram_detail, ram_ratio, gpu_title, gpu_detail, disk_title, disk_detail, disk_ratio):
         try:
@@ -878,6 +1071,30 @@ class NotLynxOptimizerApp(ctk.CTk):
                 None
             ),
             (
+                "Sağ Tık → 'Burada Komut İstemi Aç' Ekle",
+                "Klasör ve masaüstünde sağ tık menüsüne 'Burada Komut İstemi Aç' (CMD) seçeneği ekler.",
+                self.add_cmd_here_context,
+                self.remove_cmd_here_context
+            ),
+            (
+                "Sağ Tık → 'Sahipliğini Al (Take Ownership)' Ekle",
+                "Herhangi bir dosya/klasörde sağ tık ile anında tam yetki (Full Control) alabilirsiniz.",
+                self.add_take_ownership_context,
+                self.remove_take_ownership_context
+            ),
+            (
+                "Sağ Tık Menüsünden Gereksiz Girişleri Temizle",
+                "Paint 3D ile Düzenle, 3D Yazdır, Paylaş gibi Windows 10 bloat menü girişlerini temizler.",
+                self.clean_context_menu_bloat,
+                None
+            ),
+            (
+                "Eski Sağ Tık Menüsünü Geri Getir (W11 Compact Menü Kaldır)",
+                "Windows 11'in kısaltılmış sağ tık menüsünü kaldırıp Windows 10 tarzı tam menüyü getirir.",
+                self.restore_classic_context_menu,
+                self.revert_classic_context_menu
+            ),
+            (
                 "NotLynx Optimizer Güç Planını Denetim Masasına Ekle",
                 "Denetim Masası Güç Seçenekleri altına 'NotLynx Optimizer - Ultimate Power' özel planını yazar ve aktif eder.",
                 self.thread_apply_notlynx_power,
@@ -993,9 +1210,9 @@ class NotLynxOptimizerApp(ctk.CTk):
     # ==========================================
     # İŞÇİ VE THREAD FONKSİYONLARI
     # ==========================================
-    def run_cmd(self, cmd):
+    def run_cmd(self, cmd, silent=False):
         try:
-            return subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+            return subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=0x08000000).returncode == 0
         except:
             return False
 
@@ -1065,9 +1282,11 @@ class NotLynxOptimizerApp(ctk.CTk):
         self.run_cmd(f"powercfg -setactive {guid}")
 
     def thread_apply_notlynx_power(self):
-        self.apply_notlynx_power_plan()
-        self.desktop_log.insert("end", "[OK] 'NotLynx Optimizer - Ultimate Power' planı Denetim Masası'na yazıldı ve aktif edildi!\n")
-        ctypes.windll.user32.MessageBoxW(0, "'NotLynx Optimizer - Ultimate Power' güç planı başarıyla oluşturuldu ve aktif edildi!", "NotLynx Power", 0)
+        def worker():
+            self.apply_notlynx_power_plan()
+            self.desktop_log.insert("end", "[OK] 'NotLynx Optimizer - Ultimate Power' planı Denetim Masası'na yazıldı ve aktif edildi!\n")
+            ctypes.windll.user32.MessageBoxW(0, "'NotLynx Optimizer - Ultimate Power' güç planı başarıyla oluşturuldu ve aktif edildi!", "NotLynx Power", 0)
+        threading.Thread(target=worker, daemon=True).start()
 
     # GPU Tweaks
     def thread_enable_gpu_msi(self):
@@ -1103,9 +1322,11 @@ class NotLynxOptimizerApp(ctk.CTk):
             self.gpu_log.insert("end", f"[ERR] {e}\n")
 
     def thread_enable_hags(self):
-        self.run_cmd('reg add "HKLM\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f')
-        self.gpu_log.insert("end", "[OK] Donanım Hızlandırmalı GPU Zamanlaması (HAGS) aktif edildi! (Yeniden başlatma gerekir)\n")
-        ctypes.windll.user32.MessageBoxW(0, "HAGS başarıyla aktif edildi! Bilgisayarınızı yeniden başlatın.", "NotLynx GPU", 0)
+        def worker():
+            self.run_cmd('reg add "HKLM\\SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f')
+            self.gpu_log.insert("end", "[OK] Donanım Hızlandırmalı GPU Zamanlaması (HAGS) aktif edildi! (Yeniden başlatma gerekir)\n")
+            ctypes.windll.user32.MessageBoxW(0, "HAGS başarıyla aktif edildi! Bilgisayarınızı yeniden başlatın.", "NotLynx GPU", 0)
+        threading.Thread(target=worker, daemon=True).start()
 
     def thread_clean_shader_cache(self):
         threading.Thread(target=self.worker_clean_shader_cache, daemon=True).start()
@@ -1172,15 +1393,95 @@ class NotLynxOptimizerApp(ctk.CTk):
         ctypes.windll.user32.MessageBoxW(0, f"Başarılı! {stopped} gereksiz servis durduruldu.\nGörev yöneticisinde işlem sayınız belirgin şekilde düşecektir.", "NotLynx Process Reducer", 0)
 
     # Desktop Tweaks
+    def _create_transparent_ico(self):
+        """Çok katmanlı (16-256px) şeffaf ICO dosyası oluşturur — kısayol ok simgesini siyah kare olmadan tamamen kaldırmak için."""
+        win_dir = os.environ.get("WINDIR", "C:\\Windows")
+        target_path = os.path.join(win_dir, "blank.ico")
+        try:
+            if not os.path.exists(target_path):
+                img = Image.new("RGBA", (32, 32), (0, 0, 0, 0))
+                img.save(target_path, format="ICO", bitmap_format="bmp", sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
+            return target_path
+        except Exception:
+            ico_dir = os.path.join(os.environ.get("LOCALAPPDATA", ""), "NotLynx")
+            os.makedirs(ico_dir, exist_ok=True)
+            fallback_path = os.path.join(ico_dir, "blank.ico")
+            if not os.path.exists(fallback_path):
+                img = Image.new("RGBA", (32, 32), (0, 0, 0, 0))
+                img.save(fallback_path, format="ICO", bitmap_format="bmp", sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
+            return fallback_path
+
     def remove_shortcut_arrow(self):
-        self.run_cmd('reg add "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Icons" /v 29 /d "%windir%\\System32\\shell32.dll,-50" /f')
-        self.run_cmd("taskkill /f /im explorer.exe & start explorer.exe")
-        self.desktop_log.insert("end", "[OK] Kısayol simge okları kaldırıldı ve Explorer yeniden başlatıldı!\n")
+        def worker():
+            try:
+                ico_path = self._create_transparent_ico()
+                self.run_cmd(f'reg add "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Icons" /v 29 /t REG_SZ /d "{ico_path}" /f')
+                self.run_cmd(f'reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Icons" /v 29 /t REG_SZ /d "{ico_path}" /f')
+
+                # Explorer'ı durdur
+                self.run_cmd("taskkill /f /im explorer.exe")
+                time.sleep(0.5)
+
+                # İkon önbelleğini (IconCache.db + modern iconcache/thumbcache) sil
+                local_appdata = os.environ.get("LOCALAPPDATA", "")
+                if local_appdata:
+                    ic = os.path.join(local_appdata, "IconCache.db")
+                    if os.path.exists(ic):
+                        try:
+                            os.remove(ic)
+                        except OSError:
+                            pass
+                    exp_dir = os.path.join(local_appdata, "Microsoft", "Windows", "Explorer")
+                    if os.path.exists(exp_dir):
+                        import glob
+                        for pat in ["iconcache*.db", "thumbcache*.db"]:
+                            for fp in glob.glob(os.path.join(exp_dir, pat)):
+                                try:
+                                    os.remove(fp)
+                                except OSError:
+                                    pass
+
+                self.run_cmd('ie4uinit.exe -show', silent=True)
+                subprocess.Popen("explorer.exe", creationflags=0x08000000)
+                self.desktop_log.insert("end", "[OK] Kısayol simge okları tamamen kaldırıldı ve Explorer yenilendi!\n")
+                self.desktop_log.insert("end", "[BİLGİ] Şeffaf 32-bit ICO kullanıldığı için yeniden başlatmada siyah kare oluşmaz.\n")
+            except Exception as e:
+                self.desktop_log.insert("end", f"[HATA] Kısayol ok kaldırma başarısız: {e}\n")
+        threading.Thread(target=worker, daemon=True).start()
 
     def restore_shortcut_arrow(self):
-        self.run_cmd('reg delete "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Icons" /v 29 /f')
-        self.run_cmd("taskkill /f /im explorer.exe & start explorer.exe")
-        self.desktop_log.insert("end", "[OK] Kısayol simge okları varsayılana döndürüldü!\n")
+        def worker():
+            try:
+                self.run_cmd('reg delete "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Icons" /v 29 /f')
+                self.run_cmd('reg delete "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Icons" /v 29 /f')
+
+                self.run_cmd("taskkill /f /im explorer.exe")
+                time.sleep(0.5)
+
+                local_appdata = os.environ.get("LOCALAPPDATA", "")
+                if local_appdata:
+                    ic = os.path.join(local_appdata, "IconCache.db")
+                    if os.path.exists(ic):
+                        try:
+                            os.remove(ic)
+                        except OSError:
+                            pass
+                    exp_dir = os.path.join(local_appdata, "Microsoft", "Windows", "Explorer")
+                    if os.path.exists(exp_dir):
+                        import glob
+                        for pat in ["iconcache*.db", "thumbcache*.db"]:
+                            for fp in glob.glob(os.path.join(exp_dir, pat)):
+                                try:
+                                    os.remove(fp)
+                                except OSError:
+                                    pass
+
+                self.run_cmd('ie4uinit.exe -show', silent=True)
+                subprocess.Popen("explorer.exe", creationflags=0x08000000)
+                self.desktop_log.insert("end", "[OK] Kısayol simge okları varsayılana döndürüldü!\n")
+            except Exception as e:
+                self.desktop_log.insert("end", f"[HATA] Geri yükleme başarısız: {e}\n")
+        threading.Thread(target=worker, daemon=True).start()
 
     def speed_up_menus(self):
         self.run_cmd('reg add "HKCU\\Control Panel\\Desktop" /v MenuShowDelay /t REG_SZ /d 0 /f')
@@ -1193,6 +1494,82 @@ class NotLynxOptimizerApp(ctk.CTk):
     def show_file_extensions(self):
         self.run_cmd('reg add "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced" /v HideFileExt /t REG_DWORD /d 0 /f')
         self.desktop_log.insert("end", "[OK] Dosya uzantıları görünür yapıldı.\n")
+
+    # --- Sağ Tık Menü Tweakleri ---
+    def add_cmd_here_context(self):
+        cmds = [
+            'reg add "HKCR\\Directory\\Background\\shell\\cmdhere" /ve /d "Burada Komut İstemi Aç" /f',
+            'reg add "HKCR\\Directory\\Background\\shell\\cmdhere" /v "Icon" /t REG_SZ /d "cmd.exe" /f',
+            'reg add "HKCR\\Directory\\Background\\shell\\cmdhere\\command" /ve /d "cmd.exe /s /k pushd \\"%V\\"" /f',
+            'reg add "HKCR\\Directory\\shell\\cmdhere" /ve /d "Burada Komut İstemi Aç" /f',
+            'reg add "HKCR\\Directory\\shell\\cmdhere" /v "Icon" /t REG_SZ /d "cmd.exe" /f',
+            'reg add "HKCR\\Directory\\shell\\cmdhere\\command" /ve /d "cmd.exe /s /k pushd \\"%V\\"" /f',
+        ]
+        for c in cmds:
+            self.run_cmd(c)
+        self.desktop_log.insert("end", "[OK] Sağ tık menüsüne 'Burada Komut İstemi Aç' eklendi.\n")
+
+    def remove_cmd_here_context(self):
+        self.run_cmd('reg delete "HKCR\\Directory\\Background\\shell\\cmdhere" /f')
+        self.run_cmd('reg delete "HKCR\\Directory\\shell\\cmdhere" /f')
+        self.desktop_log.insert("end", "[OK] 'Burada Komut İstemi Aç' menü girişi kaldırıldı.\n")
+
+    def add_take_ownership_context(self):
+        cmds = [
+            'reg add "HKCR\\*\\shell\\runas" /ve /d "Sahipliğini Al" /f',
+            'reg add "HKCR\\*\\shell\\runas" /v "HasLUAShield" /t REG_SZ /d "" /f',
+            'reg add "HKCR\\*\\shell\\runas" /v "NoWorkingDirectory" /t REG_SZ /d "" /f',
+            'reg add "HKCR\\*\\shell\\runas\\command" /ve /d "cmd.exe /c takeown /f \\"%1\\" && icacls \\"%1\\" /grant administrators:F" /f',
+            'reg add "HKCR\\*\\shell\\runas\\command" /v "IsolatedCommand" /t REG_SZ /d "cmd.exe /c takeown /f \\"%1\\" && icacls \\"%1\\" /grant administrators:F" /f',
+            'reg add "HKCR\\Directory\\shell\\runas" /ve /d "Sahipliğini Al" /f',
+            'reg add "HKCR\\Directory\\shell\\runas" /v "HasLUAShield" /t REG_SZ /d "" /f',
+            'reg add "HKCR\\Directory\\shell\\runas" /v "NoWorkingDirectory" /t REG_SZ /d "" /f',
+            'reg add "HKCR\\Directory\\shell\\runas\\command" /ve /d "cmd.exe /c takeown /f \\"%1\\" /r /d y && icacls \\"%1\\" /grant administrators:F /t" /f',
+            'reg add "HKCR\\Directory\\shell\\runas\\command" /v "IsolatedCommand" /t REG_SZ /d "cmd.exe /c takeown /f \\"%1\\" /r /d y && icacls \\"%1\\" /grant administrators:F /t" /f',
+        ]
+        for c in cmds:
+            self.run_cmd(c)
+        self.desktop_log.insert("end", "[OK] Sağ tık menüsüne 'Sahipliğini Al (Take Ownership)' eklendi.\n")
+
+    def remove_take_ownership_context(self):
+        self.run_cmd('reg delete "HKCR\\*\\shell\\runas" /f')
+        self.run_cmd('reg delete "HKCR\\Directory\\shell\\runas" /f')
+        self.desktop_log.insert("end", "[OK] 'Sahipliğini Al' menü girişi kaldırıldı.\n")
+
+    def clean_context_menu_bloat(self):
+        bloat_keys = [
+            'HKCR\\SystemFileAssociations\\.bmp\\Shell\\3D Edit',
+            'HKCR\\SystemFileAssociations\\.jpg\\Shell\\3D Edit',
+            'HKCR\\SystemFileAssociations\\.jpeg\\Shell\\3D Edit',
+            'HKCR\\SystemFileAssociations\\.png\\Shell\\3D Edit',
+            'HKCR\\SystemFileAssociations\\.gif\\Shell\\3D Edit',
+            'HKCR\\SystemFileAssociations\\.tif\\Shell\\3D Edit',
+            'HKCR\\SystemFileAssociations\\.tiff\\Shell\\3D Edit',
+            'HKCR\\SystemFileAssociations\\.bmp\\Shell\\3D Print',
+            'HKCR\\SystemFileAssociations\\.jpg\\Shell\\3D Print',
+            'HKCR\\SystemFileAssociations\\.png\\Shell\\3D Print',
+        ]
+        removed = 0
+        for key in bloat_keys:
+            if self.run_cmd(f'reg delete "{key}" /f'):
+                removed += 1
+        # Share menüsünü kaldır
+        self.run_cmd('reg add "HKCR\\*\\shellex\\ContextMenuHandlers\\ModernSharing" /ve /d "" /f')
+        self.desktop_log.insert("end", f"[OK] {removed} gereksiz sağ tık menü girişi temizlendi (3D Edit/Print/Share).\n")
+
+    def restore_classic_context_menu(self):
+        self.run_cmd('reg add "HKCU\\Software\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\\InprocServer32" /ve /d "" /f')
+        self.run_cmd("taskkill /f /im explorer.exe")
+        time.sleep(0.5)
+        subprocess.Popen("explorer.exe", creationflags=0x08000000)
+        self.desktop_log.insert("end", "[OK] Windows 11 kısaltılmış menü devre dışı — eski tam sağ tık menüsü aktif!\n")
+
+    def revert_classic_context_menu(self):
+        self.run_cmd('reg delete "HKCU\\Software\\Classes\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}" /f')
+        self.run_cmd("taskkill /f /im explorer.exe")
+        time.sleep(0.5)
+        subprocess.Popen("explorer.exe", creationflags=0x08000000)
+        self.desktop_log.insert("end", "[OK] Windows 11 varsayılan sağ tık menüsü geri yüklendi.\n")
 
     # Cleaner
     def thread_run_deep_cleaner(self):
@@ -1304,6 +1681,9 @@ if __name__ == "__main__":
     if getattr(sys, 'frozen', False):
         exe_folder = os.path.dirname(sys.executable)
         os.chdir(exe_folder)
+
+    # Windows görev çubuğu gruplama ve kristal netlikte ikon kimliği
+    _set_app_user_model_id("NotLynx.Optimizer.1")
 
     app = NotLynxOptimizerApp()
     app.mainloop()

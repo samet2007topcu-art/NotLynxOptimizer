@@ -69,13 +69,30 @@ Standart sahte optimizasyon araçlarından farklı olarak **NotLynx Optimizer**,
 ---
 
 ### 4. 🛠️ Masaüstü & Windows İnce Ayarları
-* **Masaüstü Simgelerindeki Kısayol Okunu Kaldırma:** Masaüstündeki tüm uygulama simgelerinin üzerindeki mavi/beyaz kısayol okunu tek tıkla kaldırır ve dilediğinizde geri yükler.
+* **Masaüstü Simgelerindeki Kısayol Okunu Kaldırma:** 32-bit çok katmanlı şeffaf ICO motoruyla kısayol oklarını kaldırır; bilgisayar yeniden başladığında siyah kare oluşmaz! Dilediğinizde tek tıkla geri yükleyebilirsiniz.
+* **Sağ Tık Menüsü Eklentileri:** 'Burada Komut İstemi Aç', tam yetki sağlayan 'Sahipliğini Al (Take Ownership)' ve W11 kompakt menüyü devre dışı bırakıp klasik tam sağ tık menüsünü getirme.
+* **Sağ Tık Bloatware Temizleme:** 3D Edit, 3D Print, Modern Sharing gibi gereksiz menü kalabalıklarını temizler.
 * **Hızlı Menüler (MenuShowDelay = 0):** Windows sağ tık ve Başlat menüsü açılışındaki 400ms animasyon gecikmesini 0ms yapar.
 * **Dosya Uzantılarını Gösterme:** Tüm dosya uzantılarını görünür kılar.
 
 ---
 
-### 5. 🧹 Akıllı & Derin Sistem Temizleyici
+### 5. 🗑️ Gereksiz Windows Uygulamalarını Kaldırma (Debloat)
+* Windows 10/11 ile birlikte gelen 29+ arka plan bloatware uygulamasını (Cortana, Haritalar, İpuçları, Hava Durumu, Clipchamp vb.) izin verilen güvenli listeden seçerek tamamen kaldırır.
+* Kritik sistem, Store ve Xbox bileşenlerini asla silmez (güvenlik korumalıdır).
+* İşlem öncesi onay kutusu ve anlık PowerShell kaldırma geri bildirimi sunar.
+
+---
+
+### 6. 🎮 NVIDIA & Donanım Denetimi
+* **Canlı nvidia-smi Telemetrisi:** GPU adı, sürücü sürümü, sıcaklık (°C), güç tüketimi (W), çekirdek & bellek saat hızları (MHz), GPU kullanım oranı (%) ve VRAM takibi.
+* **Ekran Kartı MSI Modu Denetimi:** Registry tabanlı MSI modu denetimi ve otomatik yedekleme (`backup.json`).
+* **Uygulama Başına Yüksek Performanslı GPU:** Windows Graphics Preference ayarlarını tek tıkla oyuna veya uygulamaya bağlama (özellikle Optimus/hibrit laptoplarda harici GPU'yu zorunlu kılma).
+* **Shader Cache Temizliği:** DirectX, NVIDIA ve AMD gölgelendirici önbellek dizinlerini temizleme.
+
+---
+
+### 7. 🧹 Akıllı & Derin Sistem Temizleyici
 * **User Temp (`%LOCALAPPDATA%\Temp`)**
 * **Windows Temp (`C:\Windows\Temp`)**
 * **Windows Prefetch Önbelleği (`C:\Windows\Prefetch`)**

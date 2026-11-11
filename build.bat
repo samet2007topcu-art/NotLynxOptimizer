@@ -1,35 +1,54 @@
-@echo off
-chcp 65001 > nul
-title NotLynx Optimizer - PyInstaller Derleme Aracı
-color 0A
+﻿@echo off
+setlocal
+title NotLynx Optimizer - Derleme
+cd /d "%~dp0"
 
-echo ====================================================
-echo      NOTLYNX OPTIMIZER v1.0 ELITE - DERLEME ARACI
-echo ====================================================
 echo.
-
-set PYTHON_EXE=C:\Users\Samet\AppData\Local\Programs\Python\Python310\python.exe
-
-if not exist "%PYTHON_EXE%" (
-    set PYTHON_EXE=python
+echo [1/4] Gerekli dosyalar kontrol ediliyor...
+for %%F in (NotLynxOptimizer_GUI.py NotLynxOptimizer_GUI.spec requirements.txt logo.png app.ico) do (
+    if not exist "%%F" (
+        echo HATA: %%F bulunamadi. build.bat dosyasini proje klasorunden calistirin.
+        goto :fail
+    )
 )
 
-echo [*] Gerekli Python kütüphaneleri kontrol ediliyor...
-"%PYTHON_EXE%" -m pip install -r requirements.txt
-
-echo.
-echo [*] NotLynxOptimizer_GUI.exe derleniyor (UAC Admin, Varlıklar ve Tek Dosya)...
-"%PYTHON_EXE%" -m PyInstaller --onefile --noconsole --uac-admin --icon=app.ico --add-data "app.ico;." --add-data "logo.png;." --name="NotLynxOptimizer_GUI" --clean NotLynxOptimizer_GUI.py
-
-echo.
-if exist "dist\NotLynxOptimizer_GUI.exe" (
-    echo ====================================================
-    echo [SUCCESS] Derleme başarıyla tamamlandı!
-    echo Çalıştırılabilir dosya: dist\NotLynxOptimizer_GUI.exe
-    echo ====================================================
-    copy /Y "dist\NotLynxOptimizer_GUI.exe" "C:\Users\Samet\Downloads\NotLynxOptimizer_GUI.exe" > nul
-    echo [OK] Güncel .exe doğrudan İndirilenler klasörünüze kopyalandı!
-) else (
-    echo [ERROR] Derleme sırasında hata oluştu.
+echo [2/4] Python ve paketler kontrol ediliyor...
+set "PY_CMD=python"
+if exist "%LOCALAPPDATA%\Programs\Python\Python310\python.exe" (
+    set "PY_CMD=%LOCALAPPDATA%\Programs\Python\Python310\python.exe"
 )
+%PY_CMD% --version >nul 2>&1
+if errorlevel 1 (
+    echo HATA: Python bulunamadi. python.org adresinden kurup "Add to PATH" secenegini isaretleyin.
+    goto :fail
+)
+%PY_CMD% -m pip install -r requirements.txt --quiet --disable-pip-version-check
+if errorlevel 1 goto :fail
+
+echo [3/4] Derleniyor (PyInstaller) - bu islem 1-2 dakika surebilir...
+%PY_CMD% -m PyInstaller --clean --noconfirm NotLynxOptimizer_GUI.spec
+if errorlevel 1 goto :fail
+
+echo [4/4] Sonuc kontrol ediliyor...
+if not exist "dist\NotLynxOptimizer_GUI.exe" (
+    echo HATA: dist\NotLynxOptimizer_GUI.exe uretilemedi.
+    goto :fail
+)
+
+echo.
+echo TAMAM: dist\NotLynxOptimizer_GUI.exe
+for %%A in ("dist\NotLynxOptimizer_GUI.exe") do echo Boyut: %%~zA bayt
+certutil -hashfile "dist\NotLynxOptimizer_GUI.exe" SHA256
+echo.
+echo GitHub Release'e yuklenecek dosya budur. Dosya adini DEGISTIRMEYIN:
+echo siteteki indirme baglantisi tam olarak bu adi bekler.
+echo.
 pause
+exit /b 0
+
+:fail
+echo.
+echo Derleme basarisiz oldu. Yukaridaki hata mesajini kontrol edin.
+echo.
+pause
+exit /b 1
