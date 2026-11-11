@@ -364,14 +364,15 @@ class NotLynxOptimizerApp(ctk.CTk):
             ("debloat", "🗑️ Gereksiz Uygulamalar"),
             ("nvidia", "🎮 NVIDIA & GPU")
         ]
+        self.nav_labels = dict(nav_items)
 
         for i, (key, label) in enumerate(nav_items):
             btn = ctk.CTkButton(
                 self.sidebar_frame, 
-                text=label, 
+                text=f"  {label}", 
                 command=lambda k=key: self.select_tab(k), 
                 fg_color="#0a101d", 
-                text_color="#ffffff",
+                text_color="#94a3b8",
                 hover_color="#131e35",
                 anchor="w",
                 font=ctk.CTkFont(size=13, weight="bold"),
@@ -481,11 +482,34 @@ class NotLynxOptimizerApp(ctk.CTk):
     def init_telemetry_panel(self):
         panel = ctk.CTkFrame(self.sidebar_frame, fg_color="#070b14", corner_radius=10, border_color="#131e35", border_width=1)
         panel.grid(row=14, column=0, padx=16, pady=16, sticky="sew")
-        ctk.CTkLabel(panel, text="CANLI TELEMETRİ", font=ctk.CTkFont(size=9, weight="bold"), text_color="#64748b").pack(padx=12, pady=(10, 2), anchor="w")
+        
+        # Üst Canlı Nefes Alan Nabız Efekti
+        h_frame = ctk.CTkFrame(panel, fg_color="transparent")
+        h_frame.pack(fill="x", padx=12, pady=(10, 4))
+        
+        self.lbl_telemetry_dot = ctk.CTkLabel(h_frame, text="●", font=ctk.CTkFont(size=14, weight="bold"), text_color="#00ff66")
+        self.lbl_telemetry_dot.pack(side="left", padx=(0, 6))
+        
+        ctk.CTkLabel(h_frame, text="CANLI TELEMETRİ // ACTIVE", font=ctk.CTkFont(size=9, weight="bold"), text_color="#64748b").pack(side="left")
+        
         self.lbl_process_count = ctk.CTkLabel(panel, text="● İŞLEMLER: Hesaplanıyor...", font=ctk.CTkFont(size=11, weight="bold"), text_color="#38bdf8")
         self.lbl_process_count.pack(padx=12, pady=(0, 2), anchor="w")
         self.lbl_power_plan = ctk.CTkLabel(panel, text="● GÜÇ PLANI: okunuyor...", font=ctk.CTkFont(size=10), text_color="#94a3b8", wraplength=220)
         self.lbl_power_plan.pack(padx=12, pady=(0, 10), anchor="w")
+
+        # Canlı nefes alan animasyon döngüsü
+        self._pulse_idx = 0
+        self._pulse_palette = ["#00ff66", "#10b981", "#34d399", "#00f0ff", "#38bdf8", "#00f0ff", "#34d399", "#10b981"]
+        self._animate_live_pulse()
+
+    def _animate_live_pulse(self):
+        try:
+            if hasattr(self, 'lbl_telemetry_dot') and self.lbl_telemetry_dot.winfo_exists():
+                self._pulse_idx = (self._pulse_idx + 1) % len(self._pulse_palette)
+                self.lbl_telemetry_dot.configure(text_color=self._pulse_palette[self._pulse_idx])
+                self.after(350, self._animate_live_pulse)
+        except Exception:
+            pass
 
     def update_telemetry_loop(self):
         def worker():
@@ -520,14 +544,27 @@ class NotLynxOptimizerApp(ctk.CTk):
         for k, frame in self.tabs.items():
             frame.grid_forget()
             if k in self.nav_buttons:
-                self.nav_buttons[k].configure(fg_color="#0a101d", text_color="#ffffff")
+                lbl = self.nav_labels.get(k, k)
+                self.nav_buttons[k].configure(
+                    fg_color="#0a101d", 
+                    text_color="#94a3b8",
+                    border_width=0,
+                    text=f"  {lbl}"
+                )
 
         if key in self.tabs:
             self.tabs[key].grid(row=0, column=0, sticky="nsew")
             if hasattr(self.tabs[key], "on_show"):
                 self.tabs[key].on_show()
         if key in self.nav_buttons:
-            self.nav_buttons[key].configure(fg_color="#131e35", text_color="#00ff66")
+            lbl = self.nav_labels.get(key, key)
+            self.nav_buttons[key].configure(
+                fg_color="#0d1929", 
+                text_color="#00ff66",
+                border_width=1,
+                border_color="#00ff66",
+                text=f"▶ {lbl}"
+            )
 
     # ==========================================
     # 0. SEKME: GÖSTERGE PANELİ (OPTIMIZERDUCK STİLİ)
@@ -604,6 +641,7 @@ class NotLynxOptimizerApp(ctk.CTk):
         # TikTok Kartı
         card_tiktok = ctk.CTkFrame(social_frame, fg_color="#0a101d", border_color="#16223b", border_width=1, corner_radius=8)
         card_tiktok.grid(row=0, column=0, padx=4, sticky="ew")
+        ctk.CTkFrame(card_tiktok, height=2, fg_color="#00f0ff", corner_radius=1).pack(fill="x", side="top")
         ctk.CTkLabel(card_tiktok, text="🎵 TIKTOK", font=ctk.CTkFont(size=12, weight="bold"), text_color="#00f0ff").pack(padx=12, pady=(8, 2), anchor="w")
         ctk.CTkLabel(card_tiktok, text="@NotLynx_7", font=ctk.CTkFont(size=11), text_color="#94a3b8").pack(padx=12, pady=(0, 6), anchor="w")
         ctk.CTkButton(card_tiktok, text="Takip Et ↗", height=24, fg_color="#0f172a", hover_color="#1e293b", text_color="#00f0ff", font=ctk.CTkFont(size=10, weight="bold"), command=lambda: webbrowser.open("https://tiktok.com/@NotLynx_7")).pack(padx=12, pady=(0, 8), fill="x")
@@ -611,6 +649,7 @@ class NotLynxOptimizerApp(ctk.CTk):
         # Instagram Kartı
         card_insta = ctk.CTkFrame(social_frame, fg_color="#0a101d", border_color="#16223b", border_width=1, corner_radius=8)
         card_insta.grid(row=0, column=1, padx=4, sticky="ew")
+        ctk.CTkFrame(card_insta, height=2, fg_color="#ec4899", corner_radius=1).pack(fill="x", side="top")
         ctk.CTkLabel(card_insta, text="📸 INSTAGRAM", font=ctk.CTkFont(size=12, weight="bold"), text_color="#ec4899").pack(padx=12, pady=(8, 2), anchor="w")
         ctk.CTkLabel(card_insta, text="@NotLynx7", font=ctk.CTkFont(size=11), text_color="#94a3b8").pack(padx=12, pady=(0, 6), anchor="w")
         ctk.CTkButton(card_insta, text="Takip Et ↗", height=24, fg_color="#0f172a", hover_color="#1e293b", text_color="#ec4899", font=ctk.CTkFont(size=10, weight="bold"), command=lambda: webbrowser.open("https://instagram.com/NotLynx7")).pack(padx=12, pady=(0, 8), fill="x")
@@ -618,6 +657,7 @@ class NotLynxOptimizerApp(ctk.CTk):
         # GitHub Kartı
         card_git = ctk.CTkFrame(social_frame, fg_color="#0a101d", border_color="#16223b", border_width=1, corner_radius=8)
         card_git.grid(row=0, column=2, padx=4, sticky="ew")
+        ctk.CTkFrame(card_git, height=2, fg_color="#00ff66", corner_radius=1).pack(fill="x", side="top")
         ctk.CTkLabel(card_git, text="⭐ GITHUB", font=ctk.CTkFont(size=12, weight="bold"), text_color="#00ff66").pack(padx=12, pady=(8, 2), anchor="w")
         ctk.CTkLabel(card_git, text="samet2007topcu-art", font=ctk.CTkFont(size=11), text_color="#94a3b8").pack(padx=12, pady=(0, 6), anchor="w")
         ctk.CTkButton(card_git, text="Yıldızla ↗", height=24, fg_color="#0f172a", hover_color="#1e293b", text_color="#00ff66", font=ctk.CTkFont(size=10, weight="bold"), command=lambda: webbrowser.open("https://github.com/samet2007topcu-art/NotLynxOptimizer")).pack(padx=12, pady=(0, 8), fill="x")
@@ -626,6 +666,7 @@ class NotLynxOptimizerApp(ctk.CTk):
         # Card 1: OS
         self.dash_os_card = ctk.CTkFrame(scroll, fg_color="#0a101d", border_color="#16223b", border_width=1, corner_radius=10)
         self.dash_os_card.grid(row=1, column=0, padx=8, pady=6, sticky="nsew")
+        ctk.CTkFrame(self.dash_os_card, height=2, fg_color="#38bdf8", corner_radius=1).pack(fill="x", side="top")
         ctk.CTkLabel(self.dash_os_card, text="🪟 İŞLETİM SİSTEMİ", font=ctk.CTkFont(size=11, weight="bold"), text_color="#38bdf8").pack(padx=16, pady=(12, 2), anchor="w")
         self.dash_os_val = ctk.CTkLabel(self.dash_os_card, text="Yükleniyor...", font=ctk.CTkFont(size=14, weight="bold"), text_color="#ffffff", justify="left")
         self.dash_os_val.pack(padx=16, pady=(0, 4), anchor="w")
@@ -635,6 +676,7 @@ class NotLynxOptimizerApp(ctk.CTk):
         # Card 2: CPU
         self.dash_cpu_card = ctk.CTkFrame(scroll, fg_color="#0a101d", border_color="#16223b", border_width=1, corner_radius=10)
         self.dash_cpu_card.grid(row=1, column=1, padx=8, pady=6, sticky="nsew")
+        ctk.CTkFrame(self.dash_cpu_card, height=2, fg_color="#00ff66", corner_radius=1).pack(fill="x", side="top")
         ctk.CTkLabel(self.dash_cpu_card, text="⚡ MERKEZİ İŞLEMCİ (CPU)", font=ctk.CTkFont(size=11, weight="bold"), text_color="#00ff66").pack(padx=16, pady=(12, 2), anchor="w")
         self.dash_cpu_val = ctk.CTkLabel(self.dash_cpu_card, text="Yükleniyor...", font=ctk.CTkFont(size=14, weight="bold"), text_color="#ffffff", justify="left")
         self.dash_cpu_val.pack(padx=16, pady=(0, 4), anchor="w")
@@ -644,6 +686,7 @@ class NotLynxOptimizerApp(ctk.CTk):
         # Card 3: RAM
         self.dash_ram_card = ctk.CTkFrame(scroll, fg_color="#0a101d", border_color="#16223b", border_width=1, corner_radius=10)
         self.dash_ram_card.grid(row=2, column=0, padx=8, pady=6, sticky="nsew")
+        ctk.CTkFrame(self.dash_ram_card, height=2, fg_color="#a855f7", corner_radius=1).pack(fill="x", side="top")
         ctk.CTkLabel(self.dash_ram_card, text="🧠 SİSTEM BELLEĞİ (RAM)", font=ctk.CTkFont(size=11, weight="bold"), text_color="#a855f7").pack(padx=16, pady=(12, 2), anchor="w")
         self.dash_ram_val = ctk.CTkLabel(self.dash_ram_card, text="Yükleniyor...", font=ctk.CTkFont(size=14, weight="bold"), text_color="#ffffff", justify="left")
         self.dash_ram_val.pack(padx=16, pady=(0, 4), anchor="w")
@@ -656,6 +699,7 @@ class NotLynxOptimizerApp(ctk.CTk):
         # Card 4: GPU
         self.dash_gpu_card = ctk.CTkFrame(scroll, fg_color="#0a101d", border_color="#16223b", border_width=1, corner_radius=10)
         self.dash_gpu_card.grid(row=2, column=1, padx=8, pady=6, sticky="nsew")
+        ctk.CTkFrame(self.dash_gpu_card, height=2, fg_color="#f59e0b", corner_radius=1).pack(fill="x", side="top")
         ctk.CTkLabel(self.dash_gpu_card, text="🎮 GRAFİK KARTI (GPU)", font=ctk.CTkFont(size=11, weight="bold"), text_color="#f59e0b").pack(padx=16, pady=(12, 2), anchor="w")
         self.dash_gpu_val = ctk.CTkLabel(self.dash_gpu_card, text="Yükleniyor...", font=ctk.CTkFont(size=14, weight="bold"), text_color="#ffffff", justify="left")
         self.dash_gpu_val.pack(padx=16, pady=(0, 4), anchor="w")
@@ -665,6 +709,7 @@ class NotLynxOptimizerApp(ctk.CTk):
         # 3. Depolama Sürücüsü Kartı (Geniş Bar - Row 3, ColumnSpan 2)
         self.dash_disk_card = ctk.CTkFrame(scroll, fg_color="#0a101d", border_color="#16223b", border_width=1, corner_radius=10)
         self.dash_disk_card.grid(row=3, column=0, columnspan=2, padx=8, pady=6, sticky="ew")
+        ctk.CTkFrame(self.dash_disk_card, height=2, fg_color="#06b6d4", corner_radius=1).pack(fill="x", side="top")
         
         disk_top = ctk.CTkFrame(self.dash_disk_card, fg_color="transparent")
         disk_top.pack(fill="x", padx=16, pady=(12, 2))

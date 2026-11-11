@@ -70,12 +70,44 @@
             background-color: #0a101d;
             border: 1px solid rgba(0, 255, 102, 0.18);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
         }
         
         .cyber-interactive-card:hover {
             border-color: #00ff66;
-            box-shadow: 0 0 28px rgba(0, 255, 102, 0.4);
+            box-shadow: 0 0 35px rgba(0, 255, 102, 0.45);
             transform: translateY(-3px);
+        }
+
+        /* Ambient Glow & Floating Animations */
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.45; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(1.12); }
+        }
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(5deg); }
+        }
+        @keyframes shimmerBtn {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .animate-pulse-glow {
+            animation: pulseGlow 8s ease-in-out infinite;
+        }
+        .animate-float-slow {
+            animation: floatSlow 15s ease-in-out infinite;
+        }
+        .btn-shimmer {
+            background-size: 200% 100%;
+            background-image: linear-gradient(90deg, #00ff66 0%, #a7f3d0 30%, #00ff66 60%, #00f0ff 85%, #00ff66 100%);
+            animation: shimmerBtn 5s infinite linear;
+        }
+        .cyber-gradient-text {
+            background: linear-gradient(135deg, #ffffff 10%, #00ff66 60%, #00f0ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(0, 255, 102, 0.4));
         }
 
         /* Anti-Theft / Telif Koruma Sınıfları */
@@ -202,7 +234,14 @@
         }
     </style>
 </head>
-<body class="bg-cyber-dark text-slate-100 antialiased selection:bg-cyber-neon selection:text-black min-h-screen relative">
+<body class="bg-cyber-dark text-slate-100 antialiased selection:bg-cyber-neon selection:text-black min-h-screen relative overflow-x-hidden">
+
+    <!-- Siber Arka Plan Parıltı Katmanı (Floating Ambient Orbs) -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="absolute -top-32 left-1/4 w-[550px] h-[550px] bg-cyber-neon/[0.08] rounded-full blur-[140px] animate-pulse-glow"></div>
+        <div class="absolute top-1/3 -right-28 w-[650px] h-[650px] bg-cyber-cyan/[0.07] rounded-full blur-[160px] animate-float-slow"></div>
+        <div class="absolute bottom-24 -left-24 w-[600px] h-[600px] bg-emerald-500/[0.07] rounded-full blur-[150px] animate-pulse-glow" style="animation-delay: 3.5s;"></div>
+    </div>
 
     <!-- Anti-Theft Güvenlik Bildirimi (Toast) -->
     <div id="security-toast" class="bg-[#070b14]/95 border border-cyber-neon text-white px-5 py-4 rounded-xl shadow-[0_0_35px_rgba(0,255,102,0.4)] flex items-center gap-3.5 font-mono text-xs max-w-sm sm:max-w-md backdrop-blur-lg">
@@ -266,7 +305,7 @@
                 </a>
 
                 <!-- Download Button -->
-                <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases/latest/download/NotLynxOptimizer_GUI.exe" class="font-bold text-xs sm:text-sm tracking-wider px-4 sm:px-5 py-2.5 rounded-lg bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_20px_rgba(0,255,102,0.5)] hover:shadow-[0_0_30px_rgba(255,255,255,0.8)] flex items-center gap-2 font-mono flex-shrink-0">
+                <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases/latest/download/NotLynxOptimizer_GUI.exe" class="font-bold text-xs sm:text-sm tracking-wider px-4 sm:px-5 py-2.5 rounded-lg btn-shimmer text-black hover:bg-white transition-all duration-300 shadow-[0_0_25px_rgba(0,255,102,0.6)] hover:shadow-[0_0_35px_rgba(255,255,255,0.9)] flex items-center gap-2 font-mono flex-shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                     <span>v1.0 İNDİR</span>
                 </a>
@@ -299,7 +338,7 @@
                     </p>
 
                     <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-                        <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases/latest/download/NotLynxOptimizer_GUI.exe" class="w-full sm:w-auto font-bold text-sm sm:text-base tracking-wider px-8 py-4 rounded-xl bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_30px_rgba(0,255,102,0.6)] flex items-center justify-center gap-3 transform hover:-translate-y-1 font-mono">
+                        <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases/latest/download/NotLynxOptimizer_GUI.exe" class="w-full sm:w-auto font-bold text-sm sm:text-base tracking-wider px-8 py-4 rounded-xl btn-shimmer text-black hover:bg-white transition-all duration-300 shadow-[0_0_35px_rgba(0,255,102,0.7)] flex items-center justify-center gap-3 transform hover:-translate-y-1 font-mono">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                             <span>NOTLYNXOPTIMIZER.EXE (v1.0)</span>
                         </a>
@@ -379,6 +418,29 @@
                                     <div class="text-[10px] text-slate-400 mb-1">SİSTEM GECİKMESİ</div>
                                     <div id="val-latency" class="text-2xl font-bold text-cyber-neon text-neon-glow transition-all duration-300">1.2 ms</div>
                                     <div id="badge-latency" class="text-[10px] text-cyber-neon/90 mt-1 font-semibold">▼ -8.2 ms Gecikme</div>
+                                </div>
+                            </div>
+
+                            <!-- İnteraktif DPC & Gecikme Dalga Formu (Canlı Görselleştirme) -->
+                            <div class="bg-[#070b14] p-2.5 rounded-lg border border-cyber-cardLight">
+                                <div class="flex justify-between items-center text-[10px] text-slate-400 mb-1.5 font-mono">
+                                    <span class="flex items-center gap-1.5">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-cyber-neon animate-pulse" id="wave-dot"></span>
+                                        <span>GECİKME STABİLİTESİ (DPC JITTER)</span>
+                                    </span>
+                                    <span id="wave-status" class="text-cyber-neon font-bold">DÜŞÜK VE KARARLI</span>
+                                </div>
+                                <div id="latency-waveform" class="flex items-end justify-between h-7 gap-1 px-1">
+                                    <div class="wave-bar w-full bg-cyber-neon rounded-t transition-all duration-500 h-[22%] shadow-[0_0_8px_rgba(0,255,102,0.4)]"></div>
+                                    <div class="wave-bar w-full bg-cyber-neon rounded-t transition-all duration-500 h-[28%] shadow-[0_0_8px_rgba(0,255,102,0.4)]"></div>
+                                    <div class="wave-bar w-full bg-cyber-neon rounded-t transition-all duration-500 h-[19%] shadow-[0_0_8px_rgba(0,255,102,0.4)]"></div>
+                                    <div class="wave-bar w-full bg-cyber-neon rounded-t transition-all duration-500 h-[24%] shadow-[0_0_8px_rgba(0,255,102,0.4)]"></div>
+                                    <div class="wave-bar w-full bg-cyber-neon rounded-t transition-all duration-500 h-[16%] shadow-[0_0_8px_rgba(0,255,102,0.4)]"></div>
+                                    <div class="wave-bar w-full bg-cyber-neon rounded-t transition-all duration-500 h-[30%] shadow-[0_0_8px_rgba(0,255,102,0.4)]"></div>
+                                    <div class="wave-bar w-full bg-cyber-neon rounded-t transition-all duration-500 h-[20%] shadow-[0_0_8px_rgba(0,255,102,0.4)]"></div>
+                                    <div class="wave-bar w-full bg-cyber-neon rounded-t transition-all duration-500 h-[26%] shadow-[0_0_8px_rgba(0,255,102,0.4)]"></div>
+                                    <div class="wave-bar w-full bg-cyber-neon rounded-t transition-all duration-500 h-[21%] shadow-[0_0_8px_rgba(0,255,102,0.4)]"></div>
+                                    <div class="wave-bar w-full bg-cyber-neon rounded-t transition-all duration-500 h-[23%] shadow-[0_0_8px_rgba(0,255,102,0.4)]"></div>
                                 </div>
                             </div>
 
@@ -647,7 +709,7 @@
                 <h3 class="text-2xl sm:text-3xl font-black text-white font-mono select-none">NOTLYNX OPTIMIZER v1.0 İLE SINIRLARI KALDIR!</h3>
                 <p class="text-slate-300 max-w-xl mx-auto text-sm">OptimizerDuck stili donanım gösterge paneli, 10 modüllü profesyonel kernel optimizasyonu ve derin artık temizleyici şimdi tek çatıda.</p>
                 <div>
-                    <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases/latest/download/NotLynxOptimizer_GUI.exe" class="inline-flex items-center gap-3 font-bold text-sm sm:text-base tracking-wider px-8 py-4 rounded-xl bg-cyber-neon text-black hover:bg-white transition-all duration-300 shadow-[0_0_30px_rgba(0,255,102,0.6)] font-mono">
+                    <a href="https://github.com/samet2007topcu-art/NotLynxOptimizer/releases/latest/download/NotLynxOptimizer_GUI.exe" class="inline-flex items-center gap-3 font-bold text-sm sm:text-base tracking-wider px-8 py-4 rounded-xl btn-shimmer text-black hover:bg-white transition-all duration-300 shadow-[0_0_35px_rgba(0,255,102,0.7)] font-mono">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                         <span>NotLynxOptimizer_GUI.exe İNDİR (v1.0)</span>
                     </a>
@@ -659,11 +721,8 @@
     <!-- Footer -->
     <footer class="py-12 border-t border-cyber-cardLight text-center font-mono space-y-6">
         <div class="flex items-center justify-center gap-3 select-none">
-            <div class="w-8 h-8 relative flex items-center justify-center bg-cyber-card rounded-lg border border-cyber-neon/40 shadow-[0_0_12px_rgba(0,255,102,0.3)]">
-                <svg class="w-5 h-5 text-cyber-neon" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="30" y="30" width="452" height="452" rx="100" fill="#090d14" stroke="#00ff66" stroke-width="20"/>
-                    <path d="M256 180 L196 165 L100 120 L116 75 L61 160 L66 240 L126 275 L91 320 L186 370 L256 410 L326 370 L421 320 L386 275 L446 240 L451 160 L396 75 L412 120 L316 165 Z" fill="#0d141f" stroke="#00ff66" stroke-width="16"/>
-                </svg>
+            <div class="w-9 h-9 relative flex items-center justify-center bg-cyber-card rounded-lg border border-cyber-neon/40 shadow-[0_0_15px_rgba(0,255,102,0.35)] overflow-hidden">
+                <img src="logo.png" alt="NotLynx logo" class="w-full h-full object-contain p-0.5" draggable="false" oncontextmenu="preventCopy(event, 'Logo korumalıdır!')"/>
             </div>
             <span class="font-bold tracking-wider text-white text-sm sm:text-base">NOTLYNX OPTIMIZER v1.0</span>
         </div>
@@ -780,6 +839,9 @@
             const valDpc = document.getElementById('val-dpc');
             const valProc = document.getElementById('val-proc');
             const statusFooter = document.getElementById('status-footer-text');
+            const waveStatus = document.getElementById('wave-status');
+            const waveDot = document.getElementById('wave-dot');
+            const waveBars = document.querySelectorAll('#latency-waveform .wave-bar');
 
             if (isOptimizedActive) {
                 // NOTLYNX v1.0 AKTİF (OPTIMIZED)
@@ -811,6 +873,17 @@
 
                 statusFooter.textContent = "10 KERNEL MODÜLÜ DEVREDE (v1.0)";
                 statusFooter.className = "text-cyber-neon";
+
+                if (waveStatus) {
+                    waveStatus.textContent = "DÜŞÜK VE KARARLI";
+                    waveStatus.className = "text-cyber-neon font-bold";
+                }
+                if (waveDot) waveDot.className = "w-1.5 h-1.5 rounded-full bg-cyber-neon animate-pulse";
+                const optHeights = ["22%", "28%", "19%", "24%", "16%", "30%", "20%", "26%", "21%", "23%"];
+                waveBars.forEach((bar, idx) => {
+                    bar.style.height = optHeights[idx % optHeights.length];
+                    bar.className = "wave-bar w-full bg-cyber-neon rounded-t transition-all duration-500 shadow-[0_0_8px_rgba(0,255,102,0.4)]";
+                });
             } else {
                 // STANDART WINDOWS (KAPALI)
                 btn.classList.remove('active'); btn.classList.add('inactive');
@@ -841,6 +914,17 @@
 
                 statusFooter.textContent = "OPTİMİZASYON DEVRE DIŞI (STOK WINDOWS)";
                 statusFooter.className = "text-slate-400";
+
+                if (waveStatus) {
+                    waveStatus.textContent = "YÜKSEK VE DALGALI (DROP RİSKİ)";
+                    waveStatus.className = "text-rose-400 font-bold";
+                }
+                if (waveDot) waveDot.className = "w-1.5 h-1.5 rounded-full bg-rose-500";
+                const stockHeights = ["65%", "92%", "45%", "88%", "98%", "52%", "85%", "74%", "95%", "68%"];
+                waveBars.forEach((bar, idx) => {
+                    bar.style.height = stockHeights[idx % stockHeights.length];
+                    bar.className = "wave-bar w-full bg-rose-500 rounded-t transition-all duration-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]";
+                });
             }
         }
 
